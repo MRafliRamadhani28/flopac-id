@@ -1,0 +1,278 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables */
+:root {
+    --color-background: #f8f9fa;
+    --color-foreground: #495057;
+    --color-primary: #007bff;
+    --color-secondary: #6c757d;
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+    --color-info: #17a2b8;
+}
+
+/* Font Poppins */
+* {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+body {
+    font-family: 'Poppins', sans-serif !important;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    line-height: 1.6;
+}
+
+/* Custom DataTable Styling */
+.dataTables_wrapper {
+    padding: 0 !important;
+}
+
+.dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_filter input {
+    width: 300px !important;
+    padding: 8px 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 14px;
+}
+
+.dataTables_length select {
+    padding: 4px 8px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: #ffffff;
+}
+
+/* Table Styling */
+.table-transparent {
+    background: transparent !important;
+}
+
+.table-transparent thead th {
+    background: transparent !important;
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+    color: var(--color-foreground);
+    font-size: 14px;
+    padding: 12px 8px;
+}
+
+.table-transparent tbody td {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(233, 236, 239, 0.5);
+    padding: 12px 8px;
+    vertical-align: middle;
+}
+
+.table-transparent tbody tr:hover {
+    background: rgba(0, 123, 255, 0.05) !important;
+}
+
+/* Custom Search Styling */
+.custom-search-container {
+    position: relative;
+    max-width: 400px;
+}
+
+.custom-search-input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 25px;
+    background: #ffffff;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.custom-search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+}
+
+.custom-search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    cursor: pointer;
+}
+
+/* Button Styling */
+.btn {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Card Styling */
+.card {
+    border: none !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+/* Badge Styling */
+.badge {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .custom-search-input {
+        padding: 8px 35px 8px 12px;
+        font-size: 13px;
+    }
+    
+    .custom-search-container {
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Minimal Form Global Styling */
+.minimal-input {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.minimal-input:focus {
+    border-color: #4AC8EA;
+    box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
+    background: #ffffff;
+}
+
+.form-floating > .minimal-input {
+    padding: 1.625rem 1rem 0.625rem;
+}
+
+.form-floating > label {
+    padding: 1rem;
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.minimal-select-container {
+    position: relative;
+}
+
+.minimal-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.minimal-select {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 14px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.minimal-select:focus {
+    border-color: #4AC8EA;
+    box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
+}
+
+.minimal-btn-primary {
+    background: linear-gradient(135deg, #4AC8EA 0%, #4AC8EA 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.minimal-btn-primary:hover {
+    background: linear-gradient(135deg, #39b8d6 0%, #39b8d6 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 200, 234, 0.3);
+}
+
+.minimal-btn-secondary {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    font-size: 14px;
+    color: #6c757d;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.minimal-btn-secondary:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: #4AC8EA;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Select2 Minimal Global Styling */
+.select2-container--default .select2-selection--single {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    height: 56px;
+    padding: 1rem;
+    background: #ffffff;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 24px;
+    color: #495057;
+    font-size: 14px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #6c757d;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: #4AC8EA;
+    box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
+}
+
+.select2-dropdown {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

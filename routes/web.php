@@ -1,0 +1,52 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\BarangMasukController;
+use App\Http\Controllers\PersediaanController;
+use App\Http\Controllers\PenyesuaianPersediaanController;
+use App\Http\Controllers\PesananController;
+use App\Http\Controllers\LaporanController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
+Route::get('/', function () {
+    return redirect('/login');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Barang routes - Owner, Persediaan
+    Route::middleware('role:Owner,Persediaan')->group(function () {
+        Route::resource('barang', BarangController::class)->except(['show']);
+        Route::resource('barang_masuk', BarangMasukController::class)->except(['show']);
+        Route::resource('penyesuaian_persediaan', PenyesuaianPersediaanController::class);
+    });
+
+    // User routes - Owner only
+    Route::middleware('role:Owner')->group(function () {
+        Route::resource('user', UserController::class)->except(['show']);
+        Route::get('user-roles', [UserController::class, 'roles'])->name('user.roles');
+        Route::resource('laporan', LaporanController::class);
+    });
+
+    // Persediaan routes - Owner, Persediaan, Produksi
+    Route::middleware('role:Owner,Persediaan,Produksi')->group(function () {
+        Route::resource('persediaan', PersediaanController::class);
+    });
+
+    // Pesanan routes - Owner, Produksi
+    Route::middleware('role:Owner,Produksi')->group(function () {
+        Route::resource('pesanan', PesananController::class);
+    });
+});
+
+require __DIR__.'/auth.php';

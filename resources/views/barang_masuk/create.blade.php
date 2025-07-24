@@ -1,0 +1,683 @@
+<x-app-layout title="Tambah Barang Masuk - Flopac.id" icon='<i data-lucide="package-plus" class="me-3"></i> Tambah Barang Masuk'>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Tambah Barang Masuk</h4>
+                <p class="text-muted mb-0" style="font-size: 14px;">Tambah data barang masuk baru</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{{ route('barang_masuk.index') }}" class="btn btn-outline-secondary">
+                    <p class="d-flex align-items-center mb-0">
+                        <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
+                    </p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 16px;">
+            <div class="card-body" style="padding: 2rem;">
+                <form id="barangMasukForm" action="{{ route('barang_masuk.store') }}" method="POST">
+                    @csrf
+                    
+                    <div class="row g-4">
+                        <!-- Left Column -->
+                        <div class="col-md-6">
+                            <!-- No Barang Masuk -->
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control minimal-input" id="no_barang_masuk" 
+                                       value="{{ $noBarangMasuk }}" readonly>
+                                <label for="no_barang_masuk">No Barang Masuk</label>
+                            </div>
+
+                            <!-- Tanggal Masuk -->
+                            <div class="form-floating mb-3">
+                                <input type="date" 
+                                       class="form-control minimal-input @error('tanggal_masuk') is-invalid @enderror" 
+                                       id="tanggal_masuk" 
+                                       name="tanggal_masuk" 
+                                       value="{{ old('tanggal_masuk', date('Y-m-d')) }}"
+                                       required>
+                                <label for="tanggal_masuk">Tanggal Masuk *</label>
+                                @error('tanggal_masuk')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Dibuat Oleh -->
+                            <div class="form-floating">
+                                <input type="text" class="form-control minimal-input" id="created_by" 
+                                       value="{{ Auth::user()->name }}" readonly>
+                                <label for="created_by">Dibuat Oleh</label>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <!-- Keterangan -->
+                            <div class="form-floating">
+                                <textarea class="form-control minimal-input @error('keterangan') is-invalid @enderror" 
+                                          id="keterangan" 
+                                          name="keterangan" 
+                                          style="height: 140px"
+                                          placeholder="Keterangan">{{ old('keterangan') }}</textarea>
+                                <label for="keterangan">Keterangan</label>
+                                @error('keterangan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barang Section -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Daftar Barang</h6>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
+                                    <p class="d-flex align-items-center mb-0">
+                                        <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
+                                    </p>
+                                </button>
+                            </div>
+
+                            <!-- Barang Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle table-transparent" id="barangTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="font-weight: 600; color: var(--color-foreground);">Nama Barang</th>
+                                            <th style="font-weight: 600; color: var(--color-foreground);">Warna</th>
+                                            <th style="font-weight: 600; color: var(--color-foreground);">Stock</th>
+                                            <th style="font-weight: 600; color: var(--color-foreground);">Satuan</th>
+                                            <th style="font-weight: 600; color: var(--color-foreground);">Stock Masuk</th>
+                                            <th style="font-weight: 600; color: var(--color-foreground); display: none;" id="actionColumn">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="barangTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">Belum ada barang yang dipilih</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Edit Button (Hidden initially) -->
+                            <div class="mt-3" id="editButtonContainer" style="display: none;">
+                                <button type="button" class="btn btn-warning" onclick="enableEditMode()">
+                                    <p class="d-flex align-items-center mb-0">
+                                        <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
+                                    </p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-end gap-3 mt-5">
+                        <a href="{{ route('barang_masuk.index') }}" class="btn btn-light minimal-btn-secondary">
+                            <p class="d-flex align-items-center mb-0">
+                                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
+                            </p>
+                        </a>
+                        <button type="submit" class="btn btn-primary minimal-btn-primary">
+                            <p class="d-flex align-items-center mb-0">
+                                <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan Barang Masuk
+                            </p>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- Add Barang Modal -->
+<div class="modal fade" id="addBarangModal" tabindex="-1" aria-labelledby="addBarangModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBarangModalLabel">Pilih Barang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Bar -->
+                <div class="search-container mb-3">
+                    <div class="search-input">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="searchBarang" class="form-control" placeholder="Cari barang...">
+                    </div>
+                </div>
+
+                <!-- Barang List -->
+                <div class="table-responsive">
+                    <table class="table table-hover" id="modalBarangTable">
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Warna</th>
+                                <th>Stock</th>
+                                <th>Satuan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalBarangTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="pagination-info">
+                        <small class="text-muted">Menampilkan <span id="showingStart">0</span> - <span id="showingEnd">0</span> dari <span id="totalItems">0</span> item</small>
+                    </div>
+                    <nav aria-label="Pagination">
+                        <ul class="pagination pagination-sm mb-0" id="paginationControls">
+                            <!-- Pagination buttons will be generated by JavaScript -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .table-transparent {
+            background-color: transparent !important;
+        }
+        
+        .table-transparent th,
+        .table-transparent td {
+            background-color: transparent !important;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .table-transparent tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            color: #6c757d;
+            z-index: 1;
+        }
+
+        .search-input input {
+            padding-left: 44px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Pagination Styling */
+        .pagination-sm .page-link {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.2rem;
+        }
+
+        .pagination .page-link {
+            color: #4AC8EA;
+            border-color: #dee2e6;
+        }
+
+        .pagination .page-link:hover {
+            color: #39b8d6;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #4AC8EA;
+            border-color: #4AC8EA;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            background-color: #fff;
+            border-color: #dee2e6;
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+        }
+
+        /* Minimal Form Styling */
+        .minimal-input {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .minimal-input:focus {
+            border-color: #4AC8EA;
+            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
+            background: #ffffff;
+        }
+
+        .form-floating > .minimal-input {
+            padding: 1.625rem 1rem 0.625rem;
+        }
+
+        .form-floating > label {
+            padding: 1rem;
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .minimal-btn-primary {
+            background: linear-gradient(135deg, #4AC8EA 0%, #4AC8EA 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .minimal-btn-primary:hover {
+            background: linear-gradient(135deg, #39b8d6 0%, #39b8d6 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 200, 234, 0.3);
+        }
+
+        .minimal-btn-secondary {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+            font-size: 14px;
+            color: #6c757d;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .minimal-btn-secondary:hover {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+            color: #495057;
+        }
+
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: #4AC8EA;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+
+        .table th {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize
+    updateTableDisplay();
+    loadModalBarang();
+    
+    // Search functionality
+    document.getElementById('searchBarang').addEventListener('input', function() {
+        filterModalBarang(this.value);
+    });
+    
+    // Form submission handler
+    document.getElementById('barangMasukForm').addEventListener('submit', function(e) {
+        // Validate that at least one item is selected
+        if (selectedBarang.length === 0) {
+            e.preventDefault();
+            alert('Minimal pilih satu barang!');
+            return false;
+        }
+        
+        // Add hidden inputs for selected barang
+        selectedBarang.forEach((item, index) => {
+            const barangIdInput = document.createElement('input');
+            barangIdInput.type = 'hidden';
+            barangIdInput.name = `barang_id[${index}]`;
+            barangIdInput.value = item.id;
+            this.appendChild(barangIdInput);
+            
+            const stockInput = document.createElement('input');
+            stockInput.type = 'hidden';
+            stockInput.name = `stock[${index}]`;
+            stockInput.value = item.stock_masuk;
+            this.appendChild(stockInput);
+        });
+    });
+});
+
+let selectedBarang = [];
+let originalBarang = []; // Store original data for cancel functionality
+let editMode = false;
+let allBarangs = []; // Store all barang data
+let filteredBarangs = []; // Store filtered barang data
+let currentPage = 1;
+const itemsPerPage = 10; // Show 10 items per page
+
+function updateTableDisplay() {
+    const tableBody = document.getElementById('barangTableBody');
+    const editButtonContainer = document.getElementById('editButtonContainer');
+    const actionColumn = document.getElementById('actionColumn');
+    
+    if (selectedBarang.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Belum ada barang yang dipilih</td></tr>';
+        editButtonContainer.style.display = 'none';
+        if (actionColumn) actionColumn.style.display = 'none';
+    } else {
+        let html = '';
+        selectedBarang.forEach((item, index) => {
+            html += `
+                <tr>
+                    <td>${item.nama}</td>
+                    <td>${item.warna}</td>
+                    <td>${item.stock}</td>
+                    <td>${item.satuan}</td>
+                    <td>
+                        ${editMode ? 
+                            `<input type="number" class="form-control form-control-sm" value="${item.stock_masuk}" onchange="updateStock(${index}, this.value)" min="1">` : 
+                            item.stock_masuk
+                        }
+                    </td>
+                    <td style="display: ${editMode ? 'table-cell' : 'none'};">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeBarang(${index})">
+                            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        tableBody.innerHTML = html;
+        editButtonContainer.style.display = 'block';
+        
+        // Show/hide action column based on edit mode
+        if (actionColumn) actionColumn.style.display = editMode ? 'table-cell' : 'none';
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+}
+
+function loadModalBarang() {
+    // Use barangs data from backend
+    allBarangs = @json($barangs ?? []);
+    filteredBarangs = [...allBarangs]; // Initially show all items
+    currentPage = 1; // Reset to first page
+    displayModalBarang();
+}
+
+function displayModalBarang() {
+    const tableBody = document.getElementById('modalBarangTableBody');
+    
+    // Calculate pagination
+    const totalItems = filteredBarangs.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const currentItems = filteredBarangs.slice(startIndex, endIndex);
+    
+    // Update table content
+    let html = '';
+    if (currentItems.length === 0) {
+        html = '<tr><td colspan="5" class="text-center text-muted">Tidak ada barang ditemukan</td></tr>';
+    } else {
+        currentItems.forEach(item => {
+            const isSelected = selectedBarang.some(selected => selected.id === item.id);
+            html += `
+                <tr>
+                    <td>${item.nama_barang}</td>
+                    <td>${item.warna || '-'}</td>
+                    <td>${item.stock || 0}</td>
+                    <td>${item.satuan || 'Pcs'}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="selectBarang(${item.id}, '${item.nama_barang}', '${item.warna || ''}', ${item.stock || 0}, '${item.satuan || 'Pcs'}')" ${isSelected ? 'disabled' : ''}>
+                            ${isSelected ? 'Dipilih' : 'Pilih'}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    tableBody.innerHTML = html;
+    
+    // Update pagination info
+    updatePaginationInfo(startIndex + 1, endIndex, totalItems);
+    
+    // Update pagination controls
+    updatePaginationControls(currentPage, totalPages);
+}
+
+function updatePaginationInfo(start, end, total) {
+    document.getElementById('showingStart').textContent = total > 0 ? start : 0;
+    document.getElementById('showingEnd').textContent = end;
+    document.getElementById('totalItems').textContent = total;
+}
+
+function updatePaginationControls(current, total) {
+    const paginationControls = document.getElementById('paginationControls');
+    let html = '';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${current === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${current - 1}); return false;" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+    `;
+    
+    // Page numbers
+    const maxVisible = 5;
+    let startPage = Math.max(1, current - Math.floor(maxVisible / 2));
+    let endPage = Math.min(total, startPage + maxVisible - 1);
+    
+    // Adjust startPage if we're near the end
+    if (endPage - startPage + 1 < maxVisible) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+    
+    // First page and ellipsis
+    if (startPage > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(1); return false;">1</a></li>`;
+        if (startPage > 2) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        html += `
+            <li class="page-item ${i === current ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    
+    // Last page and ellipsis
+    if (endPage < total) {
+        if (endPage < total - 1) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${total}); return false;">${total}</a></li>`;
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${current === total ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${current + 1}); return false;" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    `;
+    
+    paginationControls.innerHTML = html;
+}
+
+function changePage(page) {
+    const totalPages = Math.ceil(filteredBarangs.length / itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        displayModalBarang();
+    }
+}
+
+function filterModalBarang(searchTerm) {
+    // Filter barang based on search term
+    if (searchTerm.trim() === '') {
+        filteredBarangs = [...allBarangs];
+    } else {
+        filteredBarangs = allBarangs.filter(item => {
+            const searchFields = [
+                item.nama_barang?.toLowerCase() || '',
+                item.warna?.toLowerCase() || '',
+                item.satuan?.toLowerCase() || ''
+            ];
+            return searchFields.some(field => field.includes(searchTerm.toLowerCase()));
+        });
+    }
+    
+    // Reset to first page when filtering
+    currentPage = 1;
+    displayModalBarang();
+}
+
+function selectBarang(id, nama, warna, stock, satuan) {
+    // Add barang with default stock masuk of 1
+    selectedBarang.push({
+        id: id,
+        nama: nama,
+        warna: warna,
+        stock: stock,
+        satuan: satuan,
+        stock_masuk: 1 // Default stock masuk
+    });
+    
+    updateTableDisplay();
+    displayModalBarang(); // Refresh modal to update button states with pagination
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addBarangModal'));
+    modal.hide();
+}
+
+function removeBarang(index) {
+    if (confirm('Yakin ingin menghapus barang ini?')) {
+        if (index >= 0 && index < selectedBarang.length) {
+            selectedBarang.splice(index, 1);
+            updateTableDisplay();
+            displayModalBarang(); // Refresh modal to update button states with pagination
+        }
+    }
+}
+
+function enableEditMode() {
+    // Backup original data before enabling edit mode
+    originalBarang = JSON.parse(JSON.stringify(selectedBarang));
+    
+    editMode = true;
+    updateTableDisplay();
+    
+    // Change button to save mode
+    const editButtonContainer = document.getElementById('editButtonContainer');
+    editButtonContainer.innerHTML = `
+        <button type="button" class="btn btn-success" onclick="saveEditMode()">
+            <p class="d-flex align-items-center mb-0">
+                <i data-lucide="check" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan Perubahan
+            </p>
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" onclick="cancelEditMode()">
+            <p class="d-flex align-items-center mb-0">
+                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
+            </p>
+        </button>
+    `;
+    
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function saveEditMode() {
+    editMode = false;
+    updateTableDisplay();
+    
+    // Reset button
+    const editButtonContainer = document.getElementById('editButtonContainer');
+    editButtonContainer.innerHTML = `
+        <button type="button" class="btn btn-warning" onclick="enableEditMode()">
+            <p class="d-flex align-items-center mb-0">
+                <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
+            </p>
+        </button>
+    `;
+    
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function cancelEditMode() {
+    // Restore original data from backup
+    selectedBarang = JSON.parse(JSON.stringify(originalBarang));
+    
+    editMode = false;
+    updateTableDisplay();
+    displayModalBarang(); // Refresh modal to sync button states
+    
+    // Reset button
+    const editButtonContainer = document.getElementById('editButtonContainer');
+    editButtonContainer.innerHTML = `
+        <button type="button" class="btn btn-warning" onclick="enableEditMode()">
+            <p class="d-flex align-items-center mb-0">
+                <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
+            </p>
+        </button>
+    `;
+    
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function updateStock(index, newStock) {
+    if (index >= 0 && index < selectedBarang.length && parseInt(newStock) > 0) {
+        selectedBarang[index].stock_masuk = parseInt(newStock);
+    }
+}
+    </script>
+</x-app-layout>
