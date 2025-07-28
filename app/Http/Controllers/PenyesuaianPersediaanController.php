@@ -97,11 +97,27 @@ class PenyesuaianPersediaanController extends Controller
 
             DB::commit();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Penyesuaian persediaan berhasil disimpan',
+                    'data' => $penyesuaianPersediaan->load('details.barang')
+                ]);
+            }
+
             return redirect()->route('penyesuaian_persediaan.index')
                            ->with('success', 'Penyesuaian persediaan berhasil disimpan');
 
         } catch (\Exception $e) {
             DB::rollback();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
+            
             return redirect()->back()
                            ->withInput()
                            ->withErrors(['error' => $e->getMessage()]);
@@ -202,11 +218,27 @@ class PenyesuaianPersediaanController extends Controller
 
             DB::commit();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Penyesuaian persediaan berhasil diperbarui',
+                    'data' => $penyesuaianPersediaan->load('details.barang')
+                ]);
+            }
+
             return redirect()->route('penyesuaian_persediaan.index')
                            ->with('success', 'Penyesuaian persediaan berhasil diperbarui');
 
         } catch (\Exception $e) {
             DB::rollback();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
+            
             return redirect()->back()
                            ->withInput()
                            ->withErrors(['error' => $e->getMessage()]);
@@ -216,7 +248,7 @@ class PenyesuaianPersediaanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         DB::beginTransaction();
         try {
@@ -234,11 +266,26 @@ class PenyesuaianPersediaanController extends Controller
 
             DB::commit();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Penyesuaian persediaan berhasil dihapus'
+                ]);
+            }
+
             return redirect()->route('penyesuaian_persediaan.index')
                            ->with('success', 'Penyesuaian persediaan berhasil dihapus');
 
         } catch (\Exception $e) {
             DB::rollback();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+            
             return redirect()->back()
                            ->withErrors(['error' => $e->getMessage()]);
         }

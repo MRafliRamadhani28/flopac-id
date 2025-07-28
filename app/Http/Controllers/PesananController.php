@@ -11,7 +11,6 @@ class PesananController extends Controller
      */
     public function index()
     {
-        // TODO: Implement pesanan logic
         return view('pesanan.index');
     }
 

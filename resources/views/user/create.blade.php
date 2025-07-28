@@ -16,9 +16,9 @@
         </div>
 
         <!-- Form Card -->
-        <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 16px;">
-            <div class="card-body" style="padding: 2rem;">
-                <form action="{{ route('user.store') }}" method="POST">
+        <div class="card border-0 shadow-sm form-card">
+            <div class="card-body">
+                <form id="userCreateForm" action="{{ route('user.store') }}" method="POST">
                     @csrf
                     
                     <div class="row g-4">
@@ -42,9 +42,9 @@
                         <!-- Username -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="text" 
+                                <input type="text"
                                        class="form-control minimal-input @error('username') is-invalid @enderror" 
-                                       id="username" 
+                                       id="username"
                                        name="username" 
                                        value="{{ old('username') }}"
                                        placeholder="Username"
@@ -129,16 +129,12 @@
                     </div>
 
                     <!-- Submit Buttons -->
-                    <div class="d-flex justify-content-end gap-3 mt-5">
-                        <a href="{{ route('user.index') }}" class="btn btn-light minimal-btn-secondary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
-                            </p>
+                    <div class="form-actions">
+                        <a href="{{ route('user.index') }}" class="btn minimal-btn-secondary">
+                            <i data-lucide="x"></i> Batal
                         </a>
-                        <button type="submit" class="btn btn-primary minimal-btn-primary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan User
-                            </p>
+                        <button type="submit" id="submitBtn" class="btn minimal-btn-primary">
+                            <i data-lucide="save"></i> Simpan User
                         </button>
                     </div>
                 </form>
@@ -146,6 +142,8 @@
         </div>
     </div>
 
+    <x-form-styles />
+    
     <!-- Select2 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -159,103 +157,27 @@
                 width: '100%',
                 minimumResultsForSearch: Infinity
             });
+            
+            // Setup AJAX form handler
+            setupAjaxForm('#userCreateForm', {
+                loadingTitle: 'Menyimpan User...',
+                loadingText: 'Sedang memproses data user',
+                successTitle: 'User Berhasil Ditambahkan!',
+                successText: 'Data user baru telah disimpan',
+                redirectUrl: '{{ route("user.index") }}'
+            });
         });
     </script>
 
     <style>
-        /* Minimal Form Styling */
-        .minimal-input {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: #ffffff;
-        }
-
-        .minimal-input:focus {
-            border-color: #4AC8EA;
-            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-            background: #ffffff;
-        }
-
-        .form-floating > .minimal-input {
-            padding: 1.625rem 1rem 0.625rem;
-        }
-
-        .form-floating > label {
-            padding: 1rem;
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .minimal-select-container {
-            position: relative;
-        }
-
-        .minimal-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #6c757d;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .minimal-select {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 14px;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-select:focus {
-            border-color: #4AC8EA;
-            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-        }
-
-        .minimal-btn-primary {
-            background: linear-gradient(135deg, #4AC8EA 0%, #4AC8EA 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-btn-primary:hover {
-            background: linear-gradient(135deg, #39b8d6 0%, #39b8d6 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(74, 200, 234, 0.3);
-        }
-
-        .minimal-btn-secondary {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            font-size: 14px;
-            color: #6c757d;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-btn-secondary:hover {
-            background: #f8f9fa;
-            border-color: #dee2e6;
-            color: #495057;
-        }
-
-        /* Select2 Minimal Styling */
+        /* Select2 Integration with Minimal Styling */
         .select2-container--default .select2-selection--single {
             border: 1px solid #e9ecef;
             border-radius: 12px;
             height: 56px;
             padding: 1rem;
             background: #ffffff;
+            transition: all 0.3s ease;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -279,10 +201,8 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            color: #4AC8EA;
-            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        .select2-container--default .select2-results__option--highlighted {
+            background-color: #4AC8EA;
         }
     </style>
 </x-app-layout>

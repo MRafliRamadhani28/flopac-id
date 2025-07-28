@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -88,128 +89,6 @@
         h5 i[data-lucide] {
             width: 32px !important;
             height: 32px !important;
-        }
-
-        /* Global Minimal Form Styling */
-        .minimal-input {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: #ffffff;
-        }
-
-        .minimal-input:focus {
-            border-color: #4AC8EA;
-            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-            background: #ffffff;
-        }
-
-        .form-floating > .minimal-input {
-            padding: 1.625rem 1rem 0.625rem;
-        }
-
-        .form-floating > label {
-            padding: 1rem;
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .minimal-select-container {
-            position: relative;
-        }
-
-        .minimal-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #6c757d;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .minimal-select {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 14px;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-select:focus {
-            border-color: #4AC8EA;
-            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-        }
-
-        .minimal-btn-primary {
-            background: linear-gradient(135deg, #4AC8EA 0%, #4AC8EA 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-btn-primary:hover {
-            background: linear-gradient(135deg, #39b8d6 0%, #39b8d6 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(74, 200, 234, 0.3);
-        }
-
-        .minimal-btn-secondary {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            font-size: 14px;
-            color: #6c757d;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-btn-secondary:hover {
-            background: #f8f9fa;
-            border-color: #dee2e6;
-            color: #495057;
-        }
-
-        /* Select2 Minimal Styling */
-        .select2-container--default .select2-selection--single {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            height: 56px;
-            padding: 1rem;
-            background: #ffffff;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 24px;
-            color: #495057;
-            font-size: 14px;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__placeholder {
-            color: #6c757d;
-        }
-
-        .select2-container--default.select2-container--focus .select2-selection--single {
-            border-color: #4AC8EA;
-            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-        }
-
-        .select2-dropdown {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            color: #4AC8EA;
-            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
         }
 
         /* Global Poppins Font */
@@ -338,6 +217,9 @@
             });
         }
     </script>
+
+    <!-- AJAX Form Handler Component -->
+    @include('components.ajax-handler')
 
     <!-- Initialize Lucide Icons -->
     <script>

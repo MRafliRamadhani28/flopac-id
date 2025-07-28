@@ -1,6 +1,6 @@
 <x-app-layout title="Edit User - Flopac.id" icon='<i data-lucide="user-edit" class="me-3"></i> Edit User'>
     <div class="container-fluid">
-        <!-- Header -->
+        <!-- Header Section -->
         <div class="row mb-4">
             <div class="col-md-6">
                 <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Edit User</h4>
@@ -16,9 +16,9 @@
         </div>
 
         <!-- Form Card -->
-        <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 16px;">
-            <div class="card-body" style="padding: 2rem;">
-                <form action="{{ route('user.update', $user->id) }}" method="POST">
+        <div class="card border-0 shadow-sm form-card">
+            <div class="card-body">
+                <form id="userEditForm" action="{{ route('user.update', $user->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     
@@ -130,25 +130,65 @@
                     </div>
 
                     <!-- Submit Buttons -->
-                    <div class="d-flex justify-content-end gap-3 mt-5">
-                        <a href="{{ route('user.index') }}" class="btn btn-light minimal-btn-secondary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
-                            </p>
+                    <div class="form-actions">
+                        <a href="{{ route('user.index') }}" class="btn minimal-btn-secondary">
+                            <i data-lucide="x"></i> Batal
                         </a>
-                        <button type="submit" class="btn btn-primary minimal-btn-primary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Update User
-                            </p>
+                        <button type="submit" id="submitBtn" class="btn minimal-btn-primary">
+                            <i data-lucide="save"></i> Update User
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <x-form-styles />
 </x-app-layout>
 
 @push('scripts')
+<!-- Select2 CDN -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    /* Select2 Integration with Minimal Styling */
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        height: 56px;
+        padding: 1rem;
+        background: #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px;
+        color: #495057;
+        font-size: 14px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #4AC8EA;
+        box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
+    }
+
+    .select2-dropdown {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .select2-container--default .select2-results__option--highlighted {
+        background-color: #4AC8EA;
+    }
+</style>
+
 <script>
     $(document).ready(function() {
         // Initialize Select2 for role selection
@@ -156,6 +196,15 @@
             placeholder: 'Pilih Role',
             allowClear: false,
             width: '100%'
+        });
+
+        // Setup AJAX form handler
+        setupAjaxForm('#userEditForm', {
+            loadingTitle: 'Mengupdate User...',
+            loadingText: 'Sedang memproses perubahan data user',
+            successTitle: 'User Berhasil Diupdate!',
+            successText: 'Data user telah diperbarui',
+            redirectUrl: '{{ route("user.index") }}'
         });
 
         // Auto-hide alert after 3 seconds

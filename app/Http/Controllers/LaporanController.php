@@ -11,7 +11,6 @@ class LaporanController extends Controller
      */
     public function index()
     {
-        // TODO: Implement laporan logic
         return view('laporan.index');
     }
 

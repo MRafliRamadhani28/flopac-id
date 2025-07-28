@@ -65,21 +65,19 @@
                                     <td>{{ $barangMasuk->keterangan ?? '-' }}</td>
                                     <td>{{ $barangMasuk->creator->name }}</td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group" aria-label="Barang Masuk actions">
                                             <a href="{{ route('barang_masuk.edit', $barangMasuk->id) }}" class="btn btn-sm btn-warning">
                                                 <p class="d-flex align-items-center mb-0">
                                                     <i data-lucide="edit" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $barangMasuk->id }})">
+                                            <button type="button" class="btn btn-sm btn-danger ajax-delete-btn"
+                                                    data-url="{{ route('barang_masuk.destroy', $barangMasuk->id) }}"
+                                                    data-name="{{ $barangMasuk->no_barang_masuk }}">
                                                 <p class="d-flex align-items-center mb-0">
                                                     <i data-lucide="trash-2" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </button>
-                                            <form id="deleteForm{{ $barangMasuk->id }}" action="{{ route('barang_masuk.destroy', $barangMasuk->id) }}" method="POST" style="display: none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -91,8 +89,21 @@
         </div>
     </div>
 
+    <x-ajax-handler />
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Test jQuery availability
+    if (typeof $ === 'undefined') {
+        return;
+    }
+
+    // Test CSRF token
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    if (!csrfToken) {
+        return;
+    }
+
     // Wait for all scripts to load
     setTimeout(function() {
         if (typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined') {
@@ -173,27 +184,13 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => errorAlert.remove(), 500);
         }
     }, 3000);
-});
-
-function confirmDelete(barangMasukId) {
-    Swal.fire({
+    
+    // Setup AJAX delete functionality
+    setupAjaxDelete('.ajax-delete-btn', {
         title: 'Konfirmasi Hapus',
-        text: 'Apakah Anda yakin ingin menghapus barang masuk ini?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal',
-        customClass: {
-            popup: 'swal-popup-poppins'
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('deleteForm' + barangMasukId).submit();
-        }
+        text: 'Apakah Anda yakin ingin menghapus barang masuk ini?'
     });
-}
+});
 </script>
 
 @include('components.table-styles')

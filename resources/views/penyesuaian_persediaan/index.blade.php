@@ -67,7 +67,7 @@
                                     <td>{{ $penyesuaian->creator->name }}</td>
                                     <td>{{ $penyesuaian->details->count() }} item</td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group" aria-label="Penyesuaian Persediaan actions">
                                             <a href="{{ route('penyesuaian_persediaan.show', $penyesuaian->id) }}" class="btn btn-sm btn-info">
                                                 <p class="d-flex align-items-center mb-0">
                                                     <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
@@ -78,15 +78,13 @@
                                                     <i data-lucide="edit" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $penyesuaian->id }})">
+                                            <button type="button" class="btn btn-sm btn-danger ajax-delete-btn"
+                                                    data-url="{{ route('penyesuaian_persediaan.destroy', $penyesuaian->id) }}"
+                                                    data-name="{{ $penyesuaian->no_penyesuaian_persediaan }}">
                                                 <p class="d-flex align-items-center mb-0">
                                                     <i data-lucide="trash-2" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </button>
-                                            <form id="deleteForm{{ $penyesuaian->id }}" action="{{ route('penyesuaian_persediaan.destroy', $penyesuaian->id) }}" method="POST" style="display: none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -98,6 +96,8 @@
         </div>
     </div>
 
+    <x-ajax-handler />
+    
     @push('styles')
         <x-table-styles />
     @endpush
@@ -182,12 +182,11 @@
                 }
             });
 
-            // Confirm delete function
-            function confirmDelete(id) {
-                if (confirm('Apakah Anda yakin ingin menghapus penyesuaian persediaan ini?')) {
-                    document.getElementById('deleteForm' + id).submit();
-                }
-            }
+            // Setup AJAX delete functionality
+            setupAjaxDelete('.ajax-delete-btn', {
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus penyesuaian persediaan ini?'
+            });
         </script>
     @endpush
 </x-app-layout>

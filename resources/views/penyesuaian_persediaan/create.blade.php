@@ -1,4 +1,4 @@
-<x-app-layout title="Tambah Penyesuaian Persediaan - Flopac.id" icon='<i data-lucide="refresh-cw" class="me-3"></i> Tambah Penyesuaian'>
+<x-app-layout title="Tambah Penyesuaian Persediaan - Flopac.id" icon='<i data-lucide="file-pen" class="me-3"></i> Tambah Penyesuaian Persediaan'>
     <div class="container-fluid">
         <!-- Header -->
         <div class="row mb-4">
@@ -7,17 +7,15 @@
                 <p class="text-muted mb-0" style="font-size: 14px;">Tambah data penyesuaian persediaan baru</p>
             </div>
             <div class="col-md-6 text-end">
-                <a href="{{ route('penyesuaian_persediaan.index') }}" class="btn btn-outline-secondary">
-                    <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
-                    </p>
+                <a href="{{ route('penyesuaian_persediaan.index') }}" class="minimal-btn-secondary">
+                    <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
                 </a>
             </div>
         </div>
 
         <!-- Form Card -->
-        <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 16px;">
-            <div class="card-body" style="padding: 2rem;">
+        <div class="card border-0 shadow-sm form-card">
+            <div class="card-body">
                 <form id="penyesuaianForm" action="{{ route('penyesuaian_persediaan.store') }}" method="POST">
                     @csrf
                     
@@ -75,10 +73,8 @@
                         <div class="col-12">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Daftar Barang Penyesuaian</h6>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
-                                    <p class="d-flex align-items-center mb-0">
-                                        <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
-                                    </p>
+                                <button type="button" class="minimal-btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
+                                    <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
                                 </button>
                             </div>
 
@@ -106,32 +102,29 @@
 
                             <!-- Edit Button (Hidden initially) -->
                             <div class="mt-3" id="editButtonContainer" style="display: none;">
-                                <button type="button" class="btn btn-warning" onclick="enableEditMode()">
-                                    <p class="d-flex align-items-center mb-0">
-                                        <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
-                                    </p>
+                                <button type="button" class="minimal-btn-secondary" onclick="enableEditMode()">
+                                    <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Submit Buttons -->
-                    <div class="d-flex justify-content-end gap-3 mt-5">
-                        <a href="{{ route('penyesuaian_persediaan.index') }}" class="btn btn-light minimal-btn-secondary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
-                            </p>
+                    <div class="form-actions">
+                        <a href="{{ route('penyesuaian_persediaan.index') }}" class="minimal-btn-secondary">
+                            <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
                         </a>
-                        <button type="submit" class="btn btn-primary minimal-btn-primary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan Penyesuaian Persediaan
-                            </p>
+                        <button type="submit" class="minimal-btn-primary">
+                            <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan Penyesuaian Persediaan
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <x-form-styles />
+    <x-ajax-handler />
 
     <!-- Add Barang Modal -->
     <div class="modal fade" id="addBarangModal" tabindex="-1" aria-labelledby="addBarangModalLabel" aria-hidden="true">
@@ -146,7 +139,7 @@
                     <div class="search-container mb-3">
                         <div class="search-input">
                             <i data-lucide="search" class="search-icon"></i>
-                            <input type="text" id="searchBarang" class="form-control" placeholder="Cari barang...">
+                            <input type="text" id="searchBarang" class="form-control minimal-input" placeholder="Cari barang..." style="padding-left: 44px;">
                         </div>
                     </div>
 
@@ -184,163 +177,65 @@
         </div>
     </div>
 
-    @push('styles')
-        <x-table-styles />
-        <style>
-            .table-transparent {
-                background-color: transparent !important;
-            }
-            
-            .table-transparent th,
-            .table-transparent td {
-                background-color: transparent !important;
-                border-color: rgba(255, 255, 255, 0.1);
-            }
-            
-            .table-transparent tbody tr:hover {
-                background-color: rgba(255, 255, 255, 0.05) !important;
-            }
+    <style>
+        .table-transparent {
+            background-color: transparent !important;
+        }
+        
+        .table-transparent th,
+        .table-transparent td {
+            background-color: transparent !important;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .table-transparent tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
 
-            .search-container {
-                position: relative;
-                margin-bottom: 20px;
-            }
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
 
-            .search-input {
-                position: relative;
-                display: flex;
-                align-items: center;
-            }
+        .search-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
 
-            .search-icon {
-                position: absolute;
-                left: 12px;
-                width: 20px;
-                height: 20px;
-                color: #6c757d;
-                z-index: 1;
-            }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            color: #6c757d;
+            z-index: 1;
+        }
 
-            .search-input input {
-                padding-left: 44px;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-            }
+        .search-input input {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
 
-            .search-input input:focus {
-                border-color: #0d6efd;
-                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-            }
+        .search-input input:focus {
+            border-color: #4AC8EA;
+            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
+        }
 
-            /* Pagination Styling */
-            .pagination-sm .page-link {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.875rem;
-                border-radius: 0.2rem;
-            }
-
-            .pagination .page-link {
-                color: #4AC8EA;
-                border-color: #dee2e6;
-            }
-
-            .pagination .page-link:hover {
-                color: #39b8d6;
-                background-color: #e9ecef;
-                border-color: #dee2e6;
-            }
-
-            .pagination .page-item.active .page-link {
-                background-color: #4AC8EA;
-                border-color: #4AC8EA;
-            }
-
-            .pagination .page-item.disabled .page-link {
-                color: #6c757d;
-                background-color: #fff;
-                border-color: #dee2e6;
-            }
-
-            .pagination-info {
-                font-size: 0.875rem;
-            }
-
-            /* Minimal Form Styling */
-            .minimal-input {
-                border: 1px solid #e9ecef;
-                border-radius: 12px;
-                padding: 1rem;
-                font-size: 14px;
-                transition: all 0.3s ease;
-                background: #ffffff;
-            }
-
-            .minimal-input:focus {
-                border-color: #4AC8EA;
-                box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-                background: #ffffff;
-            }
-
-            .form-floating > .minimal-input {
-                padding: 1.625rem 1rem 0.625rem;
-            }
-
-            .form-floating > label {
-                padding: 1rem;
-                color: #6c757d;
-                font-size: 14px;
-                font-weight: 500;
-            }
-
-            .minimal-btn-primary {
-                background: linear-gradient(135deg, #4AC8EA 0%, #4AC8EA 100%);
-                border: none;
-                border-radius: 12px;
-                padding: 0.75rem 2rem;
-                font-weight: 500;
-                font-size: 14px;
-                transition: all 0.3s ease;
-            }
-
-            .minimal-btn-primary:hover {
-                background: linear-gradient(135deg, #39b8d6 0%, #39b8d6 100%);
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(74, 200, 234, 0.3);
-            }
-
-            .minimal-btn-secondary {
-                border: 1px solid #e9ecef;
-                border-radius: 12px;
-                padding: 0.75rem 2rem;
-                font-weight: 500;
-                font-size: 14px;
-                color: #6c757d;
-                background: #ffffff;
-                transition: all 0.3s ease;
-            }
-
-            .minimal-btn-secondary:hover {
-                background: #f8f9fa;
-                border-color: #dee2e6;
-                color: #495057;
-                transform: translateY(-1px);
-            }
-
-            .table th, .table td {
-                vertical-align: middle;
-            }
-        </style>
-    @endpush
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
 
     @push('scripts')
         <script>
             let selectedBarang = [];
             let editMode = false;
-            let allBarangs = []; // Store all barang data
-            let filteredBarangs = []; // Store filtered barang data
+            let allBarangs = [];
+            let filteredBarangs = [];
             let currentPage = 1;
-            const itemsPerPage = 10; // Show 10 items per page
+            const itemsPerPage = 10;
 
             // Initialize
             document.addEventListener('DOMContentLoaded', function() {
@@ -349,6 +244,56 @@
                 // Search functionality
                 document.getElementById('searchBarang').addEventListener('input', function() {
                     filterModalBarang(this.value);
+                });
+                
+                // Setup AJAX form handler with custom validation
+                setupAjaxForm('#penyesuaianForm', {
+                    loadingTitle: 'Menyimpan Penyesuaian Persediaan...',
+                    loadingText: 'Sedang memproses data penyesuaian persediaan',
+                    successTitle: 'Penyesuaian Persediaan Berhasil Disimpan!',
+                    successText: 'Data penyesuaian persediaan telah berhasil disimpan',
+                    redirectUrl: '{{ route("penyesuaian_persediaan.index") }}',
+                    customValidation: function(form) {
+                        // Validate that at least one item is selected
+                        if (selectedBarang.length === 0) {
+                            Swal.fire({
+                                title: 'Perhatian!',
+                                text: 'Minimal pilih satu barang!',
+                                icon: 'warning',
+                                confirmButtonColor: '#4AC8EA'
+                            });
+                            return false;
+                        }
+                        
+                        // Add selected barang data to form
+                        const formElement = form[0];
+                        
+                        // Remove existing hidden inputs
+                        $(formElement).find('input[name="barang_id[]"], input[name="jenis[]"], input[name="jumlah[]"]').remove();
+                        
+                        // Add current selected barang data
+                        selectedBarang.forEach(function(item) {
+                            $('<input>').attr({
+                                type: 'hidden',
+                                name: 'barang_id[]',
+                                value: item.id
+                            }).appendTo(formElement);
+                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                name: 'jenis[]',
+                                value: item.jenis
+                            }).appendTo(formElement);
+                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                name: 'jumlah[]',
+                                value: item.jumlah
+                            }).appendTo(formElement);
+                        });
+                        
+                        return true;
+                    }
                 });
                 
                 // Initialize Lucide icons
@@ -390,7 +335,7 @@
                                 <td>${stock}</td>
                                 <td>${item.satuan || 'Pcs'}</td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="selectBarang(${item.id}, '${item.nama_barang}', '${item.warna || ''}', ${stock}, '${item.satuan || 'Pcs'}')" ${isSelected ? 'disabled' : ''}>
+                                    <button type="button" class="minimal-btn-primary" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;" onclick="selectBarang(${item.id}, '${item.nama_barang}', '${item.warna || ''}', ${stock}, '${item.satuan || 'Pcs'}')" ${isSelected ? 'disabled' : ''}>
                                         ${isSelected ? 'Dipilih' : 'Pilih'}
                                     </button>
                                 </td>
@@ -505,7 +450,12 @@
             function selectBarang(id, nama, warna, stockSaatIni, satuan) {
                 // Check if barang already selected
                 if (selectedBarang.find(item => item.id === id)) {
-                    alert('Barang sudah dipilih!');
+                    Swal.fire({
+                        title: 'Perhatian!',
+                        text: 'Barang sudah dipilih!',
+                        icon: 'warning',
+                        confirmButtonColor: '#4AC8EA'
+                    });
                     return;
                 }
 
@@ -567,14 +517,14 @@
                         <td>${barang.warna}</td>
                         <td>${barang.stockSaatIni}</td>
                         <td>
-                            <select class="form-select form-select-sm" name="jenis_penyesuaian[]" onchange="calculateStock(${index})" required>
+                            <select class="form-select minimal-select" name="jenis_penyesuaian[]" onchange="calculateStock(${index})" required>
                                 <option value="">Pilih</option>
                                 <option value="penambahan">Penambahan</option>
                                 <option value="pengurangan">Pengurangan</option>
                             </select>
                         </td>
                         <td>
-                            <input type="number" class="form-control form-control-sm text-center" 
+                            <input type="number" class="form-control minimal-input text-center" 
                                    name="stock_penyesuaian[]" min="0" onchange="calculateStock(${index})" required>
                             <input type="hidden" name="barang_id[]" value="${barang.id}">
                         </td>
@@ -582,7 +532,7 @@
                             <span class="badge bg-secondary" id="stockAkhir${index}">-</span>
                         </td>
                         <td style="display: ${editMode ? 'table-cell' : 'none'};">
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBarang(${barang.id})">
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeBarang(${barang.id})">
                                 <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                             </button>
                         </td>
@@ -626,7 +576,12 @@
             document.getElementById('penyesuaianForm').addEventListener('submit', function(e) {
                 if (selectedBarang.length === 0) {
                     e.preventDefault();
-                    alert('Harap pilih minimal satu barang!');
+                    Swal.fire({
+                        title: 'Perhatian!',
+                        text: 'Harap pilih minimal satu barang!',
+                        icon: 'warning',
+                        confirmButtonColor: '#4AC8EA'
+                    });
                     return;
                 }
 
@@ -641,7 +596,12 @@
                     
                     if (jenis === 'pengurangan' && jumlah > stockSaatIni) {
                         e.preventDefault();
-                        alert(`Stock tidak boleh kurang dari 0 untuk barang ${selectedBarang[i].nama}!`);
+                        Swal.fire({
+                            title: 'Perhatian!',
+                            text: `Stock tidak boleh kurang dari 0 untuk barang ${selectedBarang[i].nama}!`,
+                            icon: 'warning',
+                            confirmButtonColor: '#4AC8EA'
+                        });
                         return;
                     }
                 }

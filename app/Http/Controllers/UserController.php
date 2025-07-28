@@ -51,6 +51,14 @@ class UserController extends Controller
 
         $user->assignRole($request->role);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil ditambahkan.',
+                'data' => $user
+            ], 201);
+        }
+
         return redirect()->route('user.index')
             ->with('success', 'User berhasil ditambahkan.');
     }
@@ -90,6 +98,14 @@ class UserController extends Controller
         // Sync role (single role)
         $user->syncRoles([$request->role]);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil diperbarui.',
+                'data' => $user
+            ]);
+        }
+
         return redirect()->route('user.index')
             ->with('success', 'User berhasil diperbarui.');
     }
@@ -97,9 +113,16 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
         $user->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil dihapus.'
+            ]);
+        }
 
         return redirect()->route('user.index')
             ->with('success', 'User berhasil dihapus.');

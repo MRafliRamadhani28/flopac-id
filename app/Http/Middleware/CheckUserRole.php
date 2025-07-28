@@ -32,6 +32,7 @@ class CheckUserRole
 
         $hasAccess = false;
         foreach ($roles as $role) {
+            // Use Spatie Permission's hasRole method
             if ($user->hasRole($role)) {
                 $hasAccess = true;
                 break;

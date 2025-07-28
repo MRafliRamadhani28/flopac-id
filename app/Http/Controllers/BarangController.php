@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
 {
@@ -35,7 +36,16 @@ class BarangController extends Controller
             'satuan' => 'required|string|max:20',
         ]);
 
-        Barang::create($request->all());
+        $barang = Barang::create($request->all());
+
+        // Return JSON response for AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Barang berhasil ditambahkan.',
+                'data' => $barang
+            ]);
+        }
 
         return redirect()->route('barang.index')
             ->with('success', 'Barang berhasil ditambahkan.');
@@ -62,6 +72,14 @@ class BarangController extends Controller
 
         $barang->update($request->all());
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Barang berhasil diperbarui.',
+                'data' => $barang
+            ]);
+        }
+
         return redirect()->route('barang.index')
             ->with('success', 'Barang berhasil diperbarui.');
     }
@@ -69,11 +87,56 @@ class BarangController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Barang $barang)
+    public function destroy(Request $request, Barang $barang)
     {
-        $barang->delete();
-
-        return redirect()->route('barang.index')
-            ->with('success', 'Barang berhasil dihapus.');
+        try {
+            // Check if barang can be safely deleted
+            if (!$barang->canBeDeleted()) {
+                $usageDetails = $barang->getUsageDetails();
+                $message = 'Barang tidak dapat dihapus karena sudah digunakan dalam:';
+                foreach ($usageDetails as $detail) {
+                    $message .= "\n {$detail}";
+                }
+                
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ], 422);
+                }
+                
+                return redirect()->route('barang.index')
+                               ->with('error', $message);
+            }
+            
+            // Delete related persediaan first if exists
+            if ($barang->persediaan) {
+                $barang->persediaan->delete();
+            }
+            
+            // Then delete the barang
+            $barang->delete();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Barang berhasil dihapus.'
+                ]);
+            }
+            
+            return redirect()->route('barang.index')
+                           ->with('success', 'Barang berhasil dihapus.');
+                           
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus barang: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->route('barang.index')
+                           ->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
+        }
     }
 }

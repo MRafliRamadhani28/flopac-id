@@ -7,52 +7,50 @@
                 <p class="text-muted mb-0" style="font-size: 14px;">Edit data barang masuk: {{ $barangMasuk->no_barang_masuk }}</p>
             </div>
             <div class="col-md-6 text-end">
-                <a href="{{ route('barang_masuk.index') }}" class="btn btn-outline-secondary">
-                    <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
-                    </p>
+                <a href="{{ route('barang_masuk.index') }}" class="minimal-btn-secondary">
+                    <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
                 </a>
             </div>
         </div>
 
         <!-- Form Card -->
-        <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 16px;">
-            <div class="card-body" style="padding: 2rem;">
+        <div class="card border-0 shadow-sm form-card">
+            <div class="card-body">
                 <form id="barangMasukForm" action="{{ route('barang_masuk.update', $barangMasuk->id) }}" method="POST">
                     @csrf
                     @method('PUT')
-                    
-                    <div class="row g-4">
-                        <!-- Left Column -->
-                        <div class="col-md-6">
-                            <!-- No Barang Masuk -->
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control minimal-input" id="no_barang_masuk" 
-                                       value="{{ $barangMasuk->no_barang_masuk }}" readonly>
-                                <label for="no_barang_masuk">No Barang Masuk</label>
-                            </div>
-
-                            <!-- Tanggal Masuk -->
-                            <div class="form-floating mb-3">
-                                <input type="date" 
-                                       class="form-control minimal-input @error('tanggal_masuk') is-invalid @enderror" 
-                                       id="tanggal_masuk" 
-                                       name="tanggal_masuk" 
-                                       value="{{ old('tanggal_masuk', $barangMasuk->tanggal_masuk ? \Carbon\Carbon::parse($barangMasuk->tanggal_masuk)->format('Y-m-d') : '') }}"
-                                       required>
-                                <label for="tanggal_masuk">Tanggal Masuk *</label>
-                                @error('tanggal_masuk')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Dibuat Oleh -->
-                            <div class="form-floating">
-                                <input type="text" class="form-control minimal-input" id="created_by" 
-                                       value="{{ $barangMasuk->creator->name }}" readonly>
-                                <label for="created_by">Dibuat Oleh</label>
-                            </div>
+                
+                <div class="row g-4">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <!-- No Barang Masuk -->
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control minimal-input" id="no_barang_masuk" 
+                                   value="{{ $barangMasuk->no_barang_masuk }}" readonly>
+                            <label for="no_barang_masuk">No Barang Masuk</label>
                         </div>
+
+                        <!-- Tanggal Masuk -->
+                        <div class="form-floating mb-3">
+                            <input type="date" 
+                                   class="form-control minimal-input @error('tanggal_masuk') is-invalid @enderror" 
+                                   id="tanggal_masuk" 
+                                   name="tanggal_masuk" 
+                                   value="{{ old('tanggal_masuk', $barangMasuk->tanggal_masuk ? \Carbon\Carbon::parse($barangMasuk->tanggal_masuk)->format('Y-m-d') : '') }}"
+                                   required>
+                            <label for="tanggal_masuk">Tanggal Masuk *</label>
+                            @error('tanggal_masuk')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Dibuat Oleh -->
+                        <div class="form-floating">
+                            <input type="text" class="form-control minimal-input" id="created_by" 
+                                   value="{{ $barangMasuk->creator->name }}" readonly>
+                            <label for="created_by">Dibuat Oleh</label>
+                        </div>
+                    </div>
 
                         <!-- Right Column -->
                         <div class="col-md-6">
@@ -76,10 +74,8 @@
                         <div class="col-12">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Daftar Barang</h6>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
-                                    <p class="d-flex align-items-center mb-0">
-                                        <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
-                                    </p>
+                                <button type="button" class="minimal-btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
+                                    <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
                                 </button>
                             </div>
 
@@ -106,32 +102,29 @@
 
                             <!-- Edit Button (Hidden initially) -->
                             <div class="mt-3" id="editButtonContainer" style="display: none;">
-                                <button type="button" class="btn btn-warning" onclick="enableEditMode()">
-                                    <p class="d-flex align-items-center mb-0">
-                                        <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
-                                    </p>
+                                <button type="button" class="minimal-btn-secondary" onclick="enableEditMode()">
+                                    <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Submit Buttons -->
-                    <div class="d-flex justify-content-end gap-3 mt-5">
-                        <a href="{{ route('barang_masuk.index') }}" class="btn btn-light minimal-btn-secondary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
-                            </p>
+                    <div class="form-actions">
+                        <a href="{{ route('barang_masuk.index') }}" class="minimal-btn-secondary">
+                            <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
                         </a>
-                        <button type="submit" class="btn btn-primary minimal-btn-primary">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Update Barang Masuk
-                            </p>
+                        <button type="submit" id="submitBtn" class="minimal-btn-primary">
+                            <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Update Barang Masuk
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <x-form-styles />
+    <x-ajax-handler />
 
 <!-- Add Barang Modal -->
 <div class="modal fade" id="addBarangModal" tabindex="-1" aria-labelledby="addBarangModalLabel" aria-hidden="true">
@@ -231,111 +224,7 @@
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
-        /* Pagination Styling */
-        .pagination-sm .page-link {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            border-radius: 0.2rem;
-        }
-
-        .pagination .page-link {
-            color: #4AC8EA;
-            border-color: #dee2e6;
-        }
-
-        .pagination .page-link:hover {
-            color: #39b8d6;
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #4AC8EA;
-            border-color: #4AC8EA;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-            background-color: #fff;
-            border-color: #dee2e6;
-        }
-
-        .pagination-info {
-            font-size: 0.875rem;
-        }
-
-        /* Minimal Form Styling */
-        .minimal-input {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: #ffffff;
-        }
-
-        .minimal-input:focus {
-            border-color: #4AC8EA;
-            box-shadow: 0 0 0 0.2rem rgba(74, 200, 234, 0.15);
-            background: #ffffff;
-        }
-
-        .form-floating > .minimal-input {
-            padding: 1.625rem 1rem 0.625rem;
-        }
-
-        .form-floating > label {
-            padding: 1rem;
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .minimal-btn-primary {
-            background: linear-gradient(135deg, #4AC8EA 0%, #4AC8EA 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-btn-primary:hover {
-            background: linear-gradient(135deg, #39b8d6 0%, #39b8d6 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(74, 200, 234, 0.3);
-        }
-
-        .minimal-btn-secondary {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            font-size: 14px;
-            color: #6c757d;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-        .minimal-btn-secondary:hover {
-            background: #f8f9fa;
-            border-color: #dee2e6;
-            color: #495057;
-        }
-
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label {
-            color: #4AC8EA;
-            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
-        }
-
-        .table th {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .table td {
+        .table th, .table td {
             vertical-align: middle;
         }
     </style>
@@ -354,22 +243,29 @@ document.addEventListener('DOMContentLoaded', function() {
         filterModalBarang(this.value);
     });
     
-    // Form submission handler
-    document.getElementById('barangMasukForm').addEventListener('submit', function(e) {
-        // Add hidden inputs for selected barang
-        selectedBarang.forEach((item, index) => {
-            const barangIdInput = document.createElement('input');
-            barangIdInput.type = 'hidden';
-            barangIdInput.name = `barang_id[${index}]`;
-            barangIdInput.value = item.id;
-            this.appendChild(barangIdInput);
-            
-            const stockInput = document.createElement('input');
-            stockInput.type = 'hidden';
-            stockInput.name = `stock[${index}]`;
-            stockInput.value = item.stock_masuk;
-            this.appendChild(stockInput);
-        });
+    // Setup AJAX form handler with custom validation
+    setupAjaxForm('#barangMasukForm', {
+        redirectUrl: '{{ route("barang_masuk.index") }}',
+        customValidation: function() {
+            // Custom validation: check if at least one barang is selected
+            if (selectedBarang.length === 0) {
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Harap pilih minimal satu barang!',
+                    icon: 'warning',
+                    confirmButtonColor: '#4AC8EA'
+                });
+                return false;
+            }
+            return true;
+        },
+        customDataPreparation: function(form, formData) {
+            // Custom form data preparation
+            selectedBarang.forEach((item, index) => {
+                formData.append(`barang_id[]`, item.id);
+                formData.append(`qty[]`, item.stock_masuk);
+            });
+        }
     });
 });
 
@@ -395,7 +291,7 @@ function loadExistingData() {
                 warna: barang.warna || '-',
                 stock: barang.stock || 0,
                 satuan: barang.satuan || 'Pcs',
-                stock_masuk: detail.stock
+                stock_masuk: detail.qty
             });
         }
     });
@@ -421,12 +317,12 @@ function updateTableDisplay() {
                     <td>${item.satuan}</td>
                     <td>
                         ${editMode ? 
-                            `<input type="number" class="form-control form-control-sm" value="${item.stock_masuk}" onchange="updateStock(${index}, this.value)" min="1">` : 
+                            `<input type="number" class="form-control minimal-input" value="${item.stock_masuk}" onchange="updateStock(${index}, this.value)" min="1">` : 
                             item.stock_masuk
                         }
                     </td>
                     <td style="display: ${editMode ? 'table-cell' : 'none'};">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeBarang(${index})">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBarang(${index})">
                             <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                         </button>
                     </td>
@@ -478,7 +374,7 @@ function displayModalBarang() {
                     <td>${item.stock || 0}</td>
                     <td>${item.satuan || 'Pcs'}</td>
                     <td>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="selectBarang(${item.id}, '${item.nama_barang}', '${item.warna || ''}', ${item.stock || 0}, '${item.satuan || 'Pcs'}')" ${isSelected ? 'disabled' : ''}>
+                        <button type="button" class="minimal-btn-primary" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;" onclick="selectBarang(${item.id}, '${item.nama_barang}', '${item.warna || ''}', ${item.stock || 0}, '${item.satuan || 'Pcs'}')" ${isSelected ? 'disabled' : ''}>
                             ${isSelected ? 'Dipilih' : 'Pilih'}
                         </button>
                     </td>
@@ -629,15 +525,11 @@ function enableEditMode() {
     // Change button to save mode
     const editButtonContainer = document.getElementById('editButtonContainer');
     editButtonContainer.innerHTML = `
-        <button type="button" class="btn btn-success" onclick="saveEditMode()">
-            <p class="d-flex align-items-center mb-0">
-                <i data-lucide="check" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan Perubahan
-            </p>
+        <button type="button" class="minimal-btn-primary" onclick="saveEditMode()">
+            <i data-lucide="check" style="margin-right: 8px; width: 20px; height: 20px;"></i> Simpan Perubahan
         </button>
-        <button type="button" class="btn btn-secondary ms-2" onclick="cancelEditMode()">
-            <p class="d-flex align-items-center mb-0">
-                <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
-            </p>
+        <button type="button" class="minimal-btn-secondary ms-2" onclick="cancelEditMode()">
+            <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
         </button>
     `;
     
@@ -654,10 +546,8 @@ function saveEditMode() {
     // Reset button
     const editButtonContainer = document.getElementById('editButtonContainer');
     editButtonContainer.innerHTML = `
-        <button type="button" class="btn btn-warning" onclick="enableEditMode()">
-            <p class="d-flex align-items-center mb-0">
-                <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
-            </p>
+        <button type="button" class="minimal-btn-secondary" onclick="enableEditMode()">
+            <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
         </button>
     `;
     
@@ -678,10 +568,8 @@ function cancelEditMode() {
     // Reset button
     const editButtonContainer = document.getElementById('editButtonContainer');
     editButtonContainer.innerHTML = `
-        <button type="button" class="btn btn-warning" onclick="enableEditMode()">
-            <p class="d-flex align-items-center mb-0">
-                <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
-            </p>
+        <button type="button" class="minimal-btn-secondary" onclick="enableEditMode()">
+            <i data-lucide="edit" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit Barang
         </button>
     `;
     

@@ -11,6 +11,33 @@ use Illuminate\Support\Facades\DB;
 
 class BarangMasukController extends Controller
 {
+    private const VALIDATION_RULES = [
+        'tanggal_masuk' => 'required|date',
+        'keterangan' => 'nullable|string|max:1000',
+        'barang_id' => 'required|array|min:1',
+        'barang_id.*' => 'required|exists:barangs,id',
+        'qty' => 'required|array|min:1',
+        'qty.*' => 'required|integer|min:1',
+    ];
+
+    private const VALIDATION_MESSAGES = [
+        'tanggal_masuk.required' => 'Tanggal masuk harus diisi.',
+        'tanggal_masuk.date' => 'Format tanggal masuk tidak valid.',
+        'barang_id.required' => 'Minimal pilih satu barang.',
+        'barang_id.array' => 'Data barang tidak valid.',
+        'barang_id.min' => 'Minimal pilih satu barang.',
+        'barang_id.*.required' => 'ID barang harus diisi.',
+        'barang_id.*.exists' => 'Barang yang dipilih tidak ditemukan.',
+        'qty.required' => 'Jumlah barang harus diisi.',
+        'qty.array' => 'Data jumlah tidak valid.',
+        'qty.min' => 'Minimal masukkan satu jumlah barang.',
+        'qty.*.required' => 'Jumlah barang harus diisi.',
+        'qty.*.integer' => 'Jumlah barang harus berupa angka.',
+        'qty.*.min' => 'Jumlah barang minimal 1.',
+    ];
+
+    private const ERROR_MESSAGE_PREFIX = 'Terjadi kesalahan: ';
+
     /**
      * Display a listing of the resource.
      */
@@ -37,14 +64,7 @@ class BarangMasukController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'tanggal_masuk' => 'required|date',
-            'keterangan' => 'nullable|string|max:1000',
-            'barang_id' => 'required|array|min:1',
-            'barang_id.*' => 'required|exists:barangs,id',
-            'qty' => 'required|array|min:1',
-            'qty.*' => 'required|integer|min:1',
-        ]);
+        $request->validate(self::VALIDATION_RULES, self::VALIDATION_MESSAGES);
 
         DB::beginTransaction();
         try {
@@ -66,13 +86,32 @@ class BarangMasukController extends Controller
             }
 
             DB::commit();
+            
+            // Return JSON response for AJAX
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Barang masuk berhasil ditambahkan.',
+                    'data' => $barangMasuk->load('details.barang')
+                ]);
+            }
+            
             return redirect()->route('barang_masuk.index')
                            ->with('success', 'Barang masuk berhasil ditambahkan.');
         } catch (\Exception $e) {
             DB::rollback();
+            
+            // Return JSON error response for AJAX
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => self::ERROR_MESSAGE_PREFIX . $e->getMessage()
+                ], 422);
+            }
+            
             return redirect()->back()
                            ->withInput()
-                           ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                           ->with('error', self::ERROR_MESSAGE_PREFIX . $e->getMessage());
         }
     }
 
@@ -92,15 +131,9 @@ class BarangMasukController extends Controller
      */
     public function update(Request $request, BarangMasuk $barangMasuk)
     {
-        $request->validate([
-            'tanggal_masuk' => 'required|date',
-            'keterangan' => 'nullable|string|max:1000',
-            'barang_id' => 'required|array|min:1',
-            'barang_id.*' => 'required|exists:barangs,id',
-            'qty' => 'required|array|min:1',
-            'qty.*' => 'required|integer|min:1',
-        ]);
+        $request->validate(self::VALIDATION_RULES, self::VALIDATION_MESSAGES);
 
+        $response = null;
         DB::beginTransaction();
         try {
             // Update BarangMasuk
@@ -122,28 +155,74 @@ class BarangMasukController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('barang_masuk.index')
-                           ->with('success', 'Barang masuk berhasil diupdate.');
+            
+            if ($request->expectsJson()) {
+                $response = response()->json([
+                    'success' => true,
+                    'message' => 'Barang masuk berhasil diupdate.',
+                    'data' => $barangMasuk->load('details.barang')
+                ]);
+            } else {
+                $response = redirect()->route('barang_masuk.index')
+                               ->with('success', 'Barang masuk berhasil diupdate.');
+            }
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            
+            if ($request->expectsJson()) {
+                $response = response()->json([
+                    'success' => false,
+                    'message' => self::ERROR_MESSAGE_PREFIX . $e->getMessage()
+                ], 422);
+            } else {
+                $response = redirect()->back()
+                               ->withInput()
+                               ->with('error', self::ERROR_MESSAGE_PREFIX . $e->getMessage());
+            }
         }
+        return $response;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(BarangMasuk $barangMasuk)
+    public function destroy(Request $request, BarangMasuk $barangMasuk)
     {
+        $response = null;
+        DB::beginTransaction();
         try {
+            // Delete detail records first
+            $barangMasuk->details()->delete();
+            
+            // Then delete the main record
             $barangMasuk->delete();
-            return redirect()->route('barang_masuk.index')
+            
+            DB::commit();
+            
+            // Prepare response for AJAX or web
+            if ($request->expectsJson()) {
+                $response = response()->json([
+                    'success' => true,
+                    'message' => 'Barang masuk berhasil dihapus.'
+                ]);
+            } else {
+                $response = redirect()->route('barang_masuk.index')
                            ->with('success', 'Barang masuk berhasil dihapus.');
+            }
         } catch (\Exception $e) {
-            return redirect()->back()
-                           ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            DB::rollback();
+            \Log::error('Error in destroy method: ' . $e->getMessage());
+            
+            if ($request->expectsJson()) {
+                $response = response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            } else {
+                $response = redirect()->back()
+                           ->with('error', self::ERROR_MESSAGE_PREFIX . $e->getMessage());
+            }
         }
+        return $response;
     }
 }

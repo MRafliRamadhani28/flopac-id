@@ -80,21 +80,20 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group" aria-label="User actions">
                                             <a href="{{ route('user.edit', $user->id) }}" class="btn btn-sm btn-warning">
                                                 <p class="d-flex align-items-center mb-0">
                                                     <i data-lucide="edit" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $user->id }})">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger delete-user-btn"
+                                                    data-url="{{ route('user.destroy', $user->id) }}"
+                                                    data-name="{{ $user->name }}">
                                                 <p class="d-flex align-items-center mb-0">
                                                     <i data-lucide="trash-2" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </button>
-                                            <form id="deleteForm{{ $user->id }}" action="{{ route('user.destroy', $user->id) }}" method="POST" style="display: none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -181,27 +180,13 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => alert.remove(), 500);
         }
     }, 3000);
-});
 
-function confirmDelete(userId) {
-    Swal.fire({
-        title: 'Konfirmasi Hapus',
-        text: 'Apakah Anda yakin ingin menghapus user ini?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal',
-        customClass: {
-            popup: 'swal-popup-poppins'
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('deleteForm' + userId).submit();
-        }
+    // Setup AJAX delete handler for users
+    setupAjaxDelete('.delete-user-btn', {
+        title: 'Konfirmasi Hapus User',
+        text: 'Apakah Anda yakin ingin menghapus user ini?'
     });
-}
+});
 </script>
 
 @include('components.table-styles')

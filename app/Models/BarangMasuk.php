@@ -23,6 +23,17 @@ class BarangMasuk extends Model
     ];
 
     /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($barangMasuk) {
+            // Delete related details first
+            $barangMasuk->details()->delete();
+        });
+    }
+
+    /**
      * Generate nomor barang masuk otomatis
      */
     public static function generateNoBarangMasuk()

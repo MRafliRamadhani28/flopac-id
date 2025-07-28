@@ -1,58 +1,69 @@
 <x-app-layout title="Edit Penyesuaian Persediaan - Flopac.id" icon='<i data-lucide="edit-3" class="me-3"></i> Edit Penyesuaian'>
+    <x-form-styles />
+    <x-ajax-handler />
+    
     <div class="container-fluid">
         <!-- Header -->
-        <div class="row mb-4">
+             function selectBarang(id, nama, warna, stockSaatIni, satuan) {
+                // Check if barang already selected
+                if (selectedBarang.find(item => item.id === id)) {
+                    Swal.fire({
+                        title: 'Perhatian!',
+                        text: 'Barang sudah dipilih!',
+                        icon: 'warning',
+                        confirmButtonColor: '#4AC8EA'
+                    });
+                    return;
+                } <div class="row mb-4">
             <div class="col-md-6">
                 <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Edit Penyesuaian Persediaan</h4>
                 <p class="text-muted mb-0" style="font-size: 14px;">{{ $penyesuaianPersediaan->no_penyesuaian_persediaan }}</p>
             </div>
             <div class="col-md-6 text-end">
-                <a href="{{ route('penyesuaian_persediaan.index') }}" class="btn btn-outline-secondary">
-                    <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
-                    </p>
+                <a href="{{ route('penyesuaian_persediaan.index') }}" class="minimal-btn-secondary">
+                    <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
                 </a>
             </div>
         </div>
 
         <!-- Form Card -->
-        <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 16px;">
-            <div class="card-body" style="padding: 2rem;">
+        <div class="card border-0 shadow-sm form-card">
+            <div class="card-body">
                 <form id="penyesuaianForm" action="{{ route('penyesuaian_persediaan.update', $penyesuaianPersediaan->id) }}" method="POST">
                     @csrf
                     @method('PUT')
-                    
-                    <div class="row g-4">
-                        <!-- Left Column -->
-                        <div class="col-md-6">
-                            <!-- No Penyesuaian -->
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control minimal-input" id="no_penyesuaian_persediaan" 
-                                       value="{{ $penyesuaianPersediaan->no_penyesuaian_persediaan }}" readonly>
-                                <label for="no_penyesuaian_persediaan">No Penyesuaian</label>
-                            </div>
-
-                            <!-- Tanggal Penyesuaian -->
-                            <div class="form-floating mb-3">
-                                <input type="date" 
-                                       class="form-control minimal-input @error('tanggal_penyesuaian') is-invalid @enderror" 
-                                       id="tanggal_penyesuaian" 
-                                       name="tanggal_penyesuaian" 
-                                       value="{{ old('tanggal_penyesuaian', $penyesuaianPersediaan->tanggal_penyesuaian->format('Y-m-d')) }}"
-                                       required>
-                                <label for="tanggal_penyesuaian">Tanggal Penyesuaian *</label>
-                                @error('tanggal_penyesuaian')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Dibuat Oleh -->
-                            <div class="form-floating">
-                                <input type="text" class="form-control minimal-input" id="created_by" 
-                                       value="{{ $penyesuaianPersediaan->creator->name }}" readonly>
-                                <label for="created_by">Dibuat Oleh</label>
-                            </div>
+                
+                <div class="row g-4">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <!-- No Penyesuaian -->
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control minimal-input" id="no_penyesuaian_persediaan" 
+                                   value="{{ $penyesuaianPersediaan->no_penyesuaian_persediaan }}" readonly>
+                            <label for="no_penyesuaian_persediaan">No Penyesuaian</label>
                         </div>
+
+                        <!-- Tanggal Penyesuaian -->
+                        <div class="form-floating mb-3">
+                            <input type="date" 
+                                   class="form-control minimal-input @error('tanggal_penyesuaian') is-invalid @enderror" 
+                                   id="tanggal_penyesuaian" 
+                                   name="tanggal_penyesuaian" 
+                                   value="{{ old('tanggal_penyesuaian', $penyesuaianPersediaan->tanggal_penyesuaian->format('Y-m-d')) }}"
+                                   required>
+                            <label for="tanggal_penyesuaian">Tanggal Penyesuaian *</label>
+                            @error('tanggal_penyesuaian')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Dibuat Oleh -->
+                        <div class="form-floating">
+                            <input type="text" class="form-control minimal-input" id="created_by" 
+                                   value="{{ $penyesuaianPersediaan->creator->name }}" readonly>
+                            <label for="created_by">Dibuat Oleh</label>
+                        </div>
+                    </div>
 
                         <!-- Right Column -->
                         <div class="col-md-6">
@@ -76,10 +87,8 @@
                         <div class="col-12">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Daftar Barang Penyesuaian</h6>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
-                                    <p class="d-flex align-items-center mb-0">
-                                        <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
-                                    </p>
+                                <button type="button" class="minimal-btn-primary" data-bs-toggle="modal" data-bs-target="#addBarangModal">
+                                    <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah Barang
                                 </button>
                             </div>
 
@@ -113,19 +122,14 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="row mt-4">
-                        <div class="col-12 text-end">
-                            <button type="button" class="btn btn-outline-secondary me-2" onclick="window.history.back()">
-                                <p class="d-flex align-items-center mb-0">
-                                    <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
-                                </p>
-                            </button>
-                            <button type="submit" class="btn btn-primary" style="background: linear-gradient(90deg, #4AC8EA 0%, #4AC8EA 100%); border: none;">
-                                <p class="d-flex align-items-center mb-0">
-                                    <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Update
-                                </p>
-                            </button>
-                        </div>
+                    <!-- Submit Buttons -->
+                    <div class="form-actions">
+                        <button type="button" class="minimal-btn-secondary" onclick="window.history.back()">
+                            <i data-lucide="x" style="margin-right: 8px; width: 20px; height: 20px;"></i> Batal
+                        </button>
+                        <button type="submit" class="minimal-btn-primary">
+                            <i data-lucide="save" style="margin-right: 8px; width: 20px; height: 20px;"></i> Update
+                        </button>
                     </div>
                 </form>
             </div>
@@ -333,12 +337,17 @@
                 }
             }
 
-            // Form validation
-            document.getElementById('penyesuaianForm').addEventListener('submit', function(e) {
+            // Setup AJAX form handler with custom validation
+            setupAjaxForm('#penyesuaianForm', '{{ route("penyesuaian_persediaan.index") }}', function() {
+                // Custom validation: check if at least one barang is selected
                 if (selectedBarang.length === 0) {
-                    e.preventDefault();
-                    alert('Harap pilih minimal satu barang!');
-                    return;
+                    Swal.fire({
+                        title: 'Perhatian!',
+                        text: 'Harap pilih minimal satu barang!',
+                        icon: 'warning',
+                        confirmButtonColor: '#4AC8EA'
+                    });
+                    return false;
                 }
 
                 // Check if any stock would go negative
@@ -351,11 +360,16 @@
                     const stockSaatIni = selectedBarang[i].stockSaatIni;
                     
                     if (jenis === 'pengurangan' && jumlah > stockSaatIni) {
-                        e.preventDefault();
-                        alert(`Stock tidak boleh kurang dari 0 untuk barang ${selectedBarang[i].nama}!`);
-                        return;
+                        Swal.fire({
+                            title: 'Perhatian!',
+                            text: `Stock tidak boleh kurang dari 0 untuk barang ${selectedBarang[i].nama}!`,
+                            icon: 'warning',
+                            confirmButtonColor: '#4AC8EA'
+                        });
+                        return false;
                     }
                 }
+                return true;
             });
 
             $(document).ready(function() {

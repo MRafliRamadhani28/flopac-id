@@ -169,10 +169,8 @@ $(document).ready(function() {
                 });
             }, 100);
         } catch (error) {
-            console.error('DataTable initialization error:', error);
+            // DataTable initialization error
         }
-    } else {
-        console.log('DataTable not loaded');
     }
 });
 </script>

@@ -45,4 +45,49 @@ class Barang extends Model
     {
         return $this->hasOne(Persediaan::class);
     }
+
+    /**
+     * Relasi one-to-many ke BarangMasukDetail
+     */
+    public function barangMasukDetails()
+    {
+        return $this->hasMany(BarangMasukDetail::class);
+    }
+
+    /**
+     * Relasi one-to-many ke PenyesuaianPersediaanDetail
+     */
+    public function penyesuaianPersediaanDetails()
+    {
+        return $this->hasMany(PenyesuaianPersediaanDetail::class);
+    }
+
+    /**
+     * Check if this barang can be safely deleted
+     */
+    public function canBeDeleted()
+    {
+        return $this->barangMasukDetails()->count() === 0 && 
+               $this->penyesuaianPersediaanDetails()->count() === 0;
+    }
+
+    /**
+     * Get the usage details for this barang
+     */
+    public function getUsageDetails()
+    {
+        $details = [];
+        
+        $barangMasukCount = $this->barangMasukDetails()->count();
+        if ($barangMasukCount > 0) {
+            $details[] = "{$barangMasukCount} transaksi barang masuk";
+        }
+        
+        $penyesuaianCount = $this->penyesuaianPersediaanDetails()->count();
+        if ($penyesuaianCount > 0) {
+            $details[] = "{$penyesuaianCount} transaksi penyesuaian persediaan";
+        }
+        
+        return $details;
+    }
 }
