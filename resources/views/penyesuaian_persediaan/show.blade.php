@@ -2,21 +2,21 @@
     <div class="container-fluid">
         <!-- Header -->
         <div class="row mb-4">
-            <div class="col-md-6">
-                <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Detail Penyesuaian Persediaan</h4>
-                <p class="text-muted mb-0" style="font-size: 14px;">{{ $penyesuaianPersediaan->no_penyesuaian_persediaan }}</p>
-            </div>
+            <div class="col-md-6"></div>
             <div class="col-md-6 text-end">
                 <a href="{{ route('penyesuaian_persediaan.index') }}" class="btn btn-outline-secondary me-2">
                     <p class="d-flex align-items-center mb-0">
                         <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
                     </p>
                 </a>
-                <a href="{{ route('penyesuaian_persediaan.edit', $penyesuaianPersediaan->id) }}" class="btn btn-warning">
+                <button type="button" class="btn btn-outline-danger ajax-delete-btn"
+                    data-url="{{ route('penyesuaian_persediaan.destroy', $penyesuaianPersediaan->id) }}"
+                    data-name="{{ $penyesuaianPersediaan->no_penyesuaian_persediaan }}"
+                    data-redirect="{{ route('penyesuaian_persediaan.index') }}">
                     <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="edit-3" style="margin-right: 8px; width: 20px; height: 20px;"></i> Edit
+                        <i data-lucide="trash-2" style="margin-right: 8px; width: 20px; height: 20px;"></i> Hapus
                     </p>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -66,49 +66,55 @@
                         <h6 class="mb-3" style="color: var(--color-foreground); font-weight: 600;">Detail Barang</h6>
                         
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                            <table class="table table-hover align-middle table-transparent">
                                 <thead>
-                                    <tr style="background-color: rgba(74, 200, 234, 0.1);">
-                                        <th style="border: none; padding: 16px; color: var(--color-primary); font-weight: 600;">Nama Barang</th>
-                                        <th style="border: none; padding: 16px; color: var(--color-primary); font-weight: 600;">Warna</th>
-                                        <th style="border: none; padding: 16px; color: var(--color-primary); font-weight: 600; text-align: center;">Stock Sebelum</th>
-                                        <th style="border: none; padding: 16px; color: var(--color-primary); font-weight: 600; text-align: center;">Jenis</th>
-                                        <th style="border: none; padding: 16px; color: var(--color-primary); font-weight: 600; text-align: center;">Penyesuaian</th>
-                                        <th style="border: none; padding: 16px; color: var(--color-primary); font-weight: 600; text-align: center;">Stock Sesudah</th>
+                                    <tr>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px;">#</th>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px;">Nama Barang</th>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px;">Warna</th>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px; text-align: center;">Stock Sebelum</th>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px; text-align: center;">Jenis</th>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px; text-align: center;">Penyesuaian</th>
+                                        <th style="font-weight: 600; color: var(--color-foreground); font-size: 13px; text-align: center;">Stock Sesudah</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($penyesuaianPersediaan->details as $detail)
                                         <tr>
-                                            <td style="border: none; padding: 16px; color: var(--color-foreground);">
-                                                {{ $detail->barang->nama_barang }}
+                                            <td style="font-size: 12px; color: var(--color-foreground);">{{ $loop->iteration }}</td>
+                                            <td style="font-size: 12px; color: var(--color-foreground);">
+                                                <strong>{{ $detail->barang->nama_barang }}</strong>
                                             </td>
-                                            <td style="border: none; padding: 16px; color: var(--color-foreground);">
-                                                {{ $detail->barang->warna }}
+                                            <td style="font-size: 12px; color: var(--color-foreground);">
+                                                {{ $detail->barang->warna ?: '-' }}
                                             </td>
-                                            <td style="border: none; padding: 16px; color: var(--color-foreground); text-align: center;">
-                                                <span class="badge bg-secondary">{{ number_format($detail->stock_sebelum) }}</span>
+                                            <td style="font-size: 12px; text-align: center;">
+                                                <span class="badge bg-secondary" style="font-size: 11px;">{{ number_format($detail->stock_sebelum) }}</span>
                                             </td>
-                                            <td style="border: none; padding: 16px; text-align: center;">
+                                            <td style="font-size: 12px; text-align: center;">
                                                 @if($detail->jenis_penyesuaian === 'penambahan')
-                                                    <span class="badge bg-success">
-                                                        <i data-lucide="plus" style="width: 12px; height: 12px; margin-right: 4px;"></i>
-                                                        Penambahan
+                                                    <span class="badge bg-success" style="font-size: 11px;">
+                                                        <p class="d-flex align-items-center mb-0">
+                                                            <i data-lucide="plus" style="width: 12px; height: 12px; margin-right: 4px;"></i>
+                                                            Penambahan
+                                                        </p>
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-danger">
-                                                        <i data-lucide="minus" style="width: 12px; height: 12px; margin-right: 4px;"></i>
-                                                        Pengurangan
+                                                    <span class="badge bg-danger" style="font-size: 11px;">
+                                                        <p class="d-flex align-items-center mb-0">
+                                                            <i data-lucide="minus" style="width: 12px; height: 12px; margin-right: 4px;"></i>
+                                                            Pengurangan
+                                                        </p>
                                                     </span>
                                                 @endif
                                             </td>
-                                            <td style="border: none; padding: 16px; color: var(--color-foreground); text-align: center;">
-                                                <span class="badge {{ $detail->jenis_penyesuaian === 'penambahan' ? 'bg-success' : 'bg-danger' }}">
+                                            <td style="font-size: 12px; text-align: center;">
+                                                <span class="badge {{ $detail->jenis_penyesuaian === 'penambahan' ? 'bg-success' : 'bg-danger' }}" style="font-size: 11px;">
                                                     {{ $detail->jenis_penyesuaian === 'penambahan' ? '+' : '-' }}{{ number_format($detail->stock_penyesuaian) }}
                                                 </span>
                                             </td>
-                                            <td style="border: none; padding: 16px; color: var(--color-foreground); text-align: center;">
-                                                <span class="badge bg-primary">{{ number_format($detail->stock_sesudah) }}</span>
+                                            <td style="font-size: 12px; text-align: center;">
+                                                <span class="badge bg-primary" style="font-size: 11px;">{{ number_format($detail->stock_sesudah) }}</span>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -124,17 +130,27 @@
     @push('styles')
         <style>
             .badge {
-                font-size: 12px;
-                padding: 6px 10px;
+                font-size: 11px;
+                padding: 4px 8px;
             }
         </style>
     @endpush
+
+    <x-ajax-handler />
+    <x-form-styles />
 
     @push('scripts')
         <script>
             $(document).ready(function() {
                 // Initialize Lucide icons
                 lucide.createIcons();
+                
+                // Setup AJAX delete functionality
+                setupAjaxDelete('.ajax-delete-btn', {
+                    title: 'Konfirmasi Hapus',
+                    text: 'Apakah Anda yakin ingin menghapus penyesuaian persediaan ini?',
+                    successRedirectUrl: "{{ route('penyesuaian_persediaan.index') }}"
+                });
             });
         </script>
     @endpush

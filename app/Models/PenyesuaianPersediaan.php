@@ -37,22 +37,8 @@ class PenyesuaianPersediaan extends Model
         
         static::creating(function ($model) {
             if (empty($model->no_penyesuaian_persediaan)) {
-                $model->no_penyesuaian_persediaan = self::generateNoPenyesuaian();
+                $model->no_penyesuaian_persediaan = \App\Models\DocumentCounter::generateDocumentNumber('penyesuaian_persediaan', 'ADJ', 5);
             }
         });
-    }
-
-    public static function generateNoPenyesuaian(): string
-    {
-        $latestRecord = self::orderBy('id', 'desc')->first();
-        
-        if (!$latestRecord) {
-            return 'ADJ-00001';
-        }
-        
-        $latestNumber = (int) substr($latestRecord->no_penyesuaian_persediaan, 4);
-        $newNumber = $latestNumber + 1;
-        
-        return 'ADJ-' . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
     }
 }

@@ -27,27 +27,17 @@ class BarangMasuk extends Model
      */
     protected static function booted()
     {
+        // Auto-generate nomor barang masuk ketika data akan disimpan
+        static::creating(function ($barangMasuk) {
+            if (empty($barangMasuk->no_barang_masuk)) {
+                $barangMasuk->no_barang_masuk = \App\Models\DocumentCounter::generateDocumentNumber('barang_masuk', 'IN', 5);
+            }
+        });
+        
         static::deleting(function ($barangMasuk) {
             // Delete related details first
             $barangMasuk->details()->delete();
         });
-    }
-
-    /**
-     * Generate nomor barang masuk otomatis
-     */
-    public static function generateNoBarangMasuk()
-    {
-        $lastBarangMasuk = self::orderBy('id', 'desc')->first();
-        
-        if (!$lastBarangMasuk) {
-            return 'IN-00001';
-        }
-        
-        $lastNumber = intval(substr($lastBarangMasuk->no_barang_masuk, 3));
-        $newNumber = $lastNumber + 1;
-        
-        return 'IN-' . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
     }
 
     /**

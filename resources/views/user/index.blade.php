@@ -105,89 +105,87 @@
         </div>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for all scripts to load
-    setTimeout(function() {
-        if (typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined') {
-            try {
-                // Destroy existing DataTable if it exists
-                if ($.fn.DataTable.isDataTable('#usersTable')) {
-                    $('#usersTable').DataTable().destroy();
-                }
-                
-                var table = $('#usersTable').DataTable({
-                    responsive: true,
-                    pageLength: 10,
-                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
-                    searching: true,
-                    dom: 'lrtip', // Hide default search box
-                    language: {
-                        processing: "Sedang memproses...",
-                        search: "Cari:",
-                        lengthMenu: "Tampilkan _MENU_ entri",
-                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                        infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
-                        infoFiltered: "(disaring dari _MAX_ entri keseluruhan)",
-                        infoPostFix: "",
-                        loadingRecords: "Sedang memuat...",
-                        zeroRecords: "Tidak ditemukan data yang sesuai",
-                        emptyTable: "Tidak ada data yang tersedia pada tabel ini",
-                        paginate: {
-                            first: "Pertama",
-                            previous: "Sebelumnya",
-                            next: "Selanjutnya",
-                            last: "Terakhir"
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for all scripts to load
+            setTimeout(function() {
+                if (typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined') {
+                    try {
+                        // Destroy existing DataTable if it exists
+                        if ($.fn.DataTable.isDataTable('#usersTable')) {
+                            $('#usersTable').DataTable().destroy();
                         }
-                    },
-                    columnDefs: [
-                        { orderable: false, targets: [5] }
-                    ],
-                    order: [[0, 'asc']],
-                    initComplete: function() {
-                        // Style the length menu
-                        $('.dataTables_length select').addClass('form-select form-select-sm');
-                        $('.dataTables_length').addClass('mb-3');
                         
-                        // Style pagination
-                        $('.dataTables_paginate').addClass('mt-3');
-                        $('.dataTables_info').addClass('mt-3');
+                        var table = $('#usersTable').DataTable({
+                            responsive: true,
+                            pageLength: 10,
+                            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
+                            searching: true,
+                            dom: 'lrtip', // Hide default search box
+                            language: {
+                                processing: "Sedang memproses...",
+                                search: "Cari:",
+                                lengthMenu: "Tampilkan _MENU_ entri",
+                                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                                infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+                                infoFiltered: "(disaring dari _MAX_ entri keseluruhan)",
+                                infoPostFix: "",
+                                loadingRecords: "Sedang memuat...",
+                                zeroRecords: "Tidak ditemukan data yang sesuai",
+                                emptyTable: "Tidak ada data yang tersedia pada tabel ini",
+                                paginate: {
+                                    first: "Pertama",
+                                    previous: "Sebelumnya",
+                                    next: "Selanjutnya",
+                                    last: "Terakhir"
+                                }
+                            },
+                            columnDefs: [
+                                { orderable: false, targets: [5] }
+                            ],
+                            order: [[0, 'asc']],
+                            initComplete: function() {
+                                // Style the length menu
+                                $('.dataTables_length select').addClass('form-select form-select-sm');
+                                $('.dataTables_length').addClass('mb-3');
+                                
+                                // Style pagination
+                                $('.dataTables_paginate').addClass('mt-3');
+                                $('.dataTables_info').addClass('mt-3');
+                            }
+                        });
+
+                        // Custom search functionality
+                        $('#customSearch').on('keyup', function() {
+                            table.search(this.value).draw();
+                        });
+
+                        // Search icon click functionality
+                        $('.custom-search-icon').on('click', function() {
+                            $('#customSearch').focus();
+                        });
+
+                    } catch (error) {
+                        console.error('DataTable initialization error:', error);
                     }
-                });
+                }
+            }, 1000);
 
-                // Custom search functionality
-                $('#customSearch').on('keyup', function() {
-                    table.search(this.value).draw();
-                });
+            // Auto-hide alert
+            setTimeout(function() {
+                var alert = document.getElementById('success-alert');
+                if (alert) {
+                    alert.style.transition = 'opacity 0.5s';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }
+            }, 3000);
 
-                // Search icon click functionality
-                $('.custom-search-icon').on('click', function() {
-                    $('#customSearch').focus();
-                });
-
-            } catch (error) {
-                console.error('DataTable initialization error:', error);
-            }
-        }
-    }, 1000);
-
-    // Auto-hide alert
-    setTimeout(function() {
-        var alert = document.getElementById('success-alert');
-        if (alert) {
-            alert.style.transition = 'opacity 0.5s';
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 500);
-        }
-    }, 3000);
-
-    // Setup AJAX delete handler for users
-    setupAjaxDelete('.delete-user-btn', {
-        title: 'Konfirmasi Hapus User',
-        text: 'Apakah Anda yakin ingin menghapus user ini?'
-    });
-});
-</script>
-
-@include('components.table-styles')
+            // Setup AJAX delete handler for users
+            setupAjaxDelete('.delete-user-btn', {
+                title: 'Konfirmasi Hapus User',
+                text: 'Apakah Anda yakin ingin menghapus user ini?'
+            });
+        });
+    </script>
 </x-app-layout>

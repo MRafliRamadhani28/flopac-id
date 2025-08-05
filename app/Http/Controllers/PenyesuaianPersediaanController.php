@@ -28,7 +28,8 @@ class PenyesuaianPersediaanController extends Controller
     public function create()
     {
         $barangs = Barang::with('persediaan')->get();
-        $noPenyesuaian = PenyesuaianPersediaan::generateNoPenyesuaian();
+        // Preview nomor yang akan di-generate saat data disimpan
+        $noPenyesuaian = \App\Models\DocumentCounter::previewNextNumber('penyesuaian_persediaan', 'ADJ', 5);
 
         return view('penyesuaian_persediaan.create', compact('barangs', 'noPenyesuaian'));
     }
@@ -43,10 +44,10 @@ class PenyesuaianPersediaanController extends Controller
             'keterangan' => 'nullable|string|max:1000',
             'barang_id' => 'required|array|min:1',
             'barang_id.*' => 'required|exists:barangs,id',
-            'stock_penyesuaian' => 'required|array|min:1',
-            'stock_penyesuaian.*' => 'required|integer',
-            'jenis_penyesuaian' => 'required|array|min:1',
-            'jenis_penyesuaian.*' => 'required|in:penambahan,pengurangan',
+            'jumlah' => 'required|array|min:1',
+            'jumlah.*' => 'required|integer|min:1',
+            'jenis' => 'required|array|min:1',
+            'jenis.*' => 'required|in:penambahan,pengurangan',
         ]);
 
         DB::beginTransaction();
@@ -61,15 +62,16 @@ class PenyesuaianPersediaanController extends Controller
             // Process each barang detail
             foreach ($request->barang_id as $index => $barangId) {
                 $barang = Barang::findOrFail($barangId);
-                $persediaan = $barang->persediaan;
                 
-                if (!$persediaan) {
-                    throw new \Exception("Persediaan untuk barang {$barang->nama_barang} tidak ditemukan");
-                }
+                // Cari atau buat record persediaan
+                $persediaan = Persediaan::firstOrCreate(
+                    ['barang_id' => $barangId],
+                    ['stock' => 0, 'safety_stock' => 5]
+                );
 
                 $stockSebelum = $persediaan->stock;
-                $stockPenyesuaian = $request->stock_penyesuaian[$index];
-                $jenisPenyesuaian = $request->jenis_penyesuaian[$index];
+                $stockPenyesuaian = $request->jumlah[$index];
+                $jenisPenyesuaian = $request->jenis[$index];
 
                 // Calculate new stock
                 if ($jenisPenyesuaian === 'penambahan') {

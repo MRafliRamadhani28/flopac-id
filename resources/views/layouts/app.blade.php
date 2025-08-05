@@ -33,15 +33,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <style>
-        :root {
-            --color-background: #E9F2FF;
-            --color-foreground: #016c89;
-        }
-
-        body {
-            background-color: #f8f9fa;
-        }
-
         .sidebar {
             height: 100vh;
             background-color: #E9F2FF;

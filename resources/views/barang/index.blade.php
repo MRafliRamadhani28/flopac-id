@@ -1,13 +1,5 @@
 <x-app-layout title="Barang - Flopac.id" icon='<i data-lucide="box" class="me-3"></i> Barang'>
     <div class="container-fluid">
-        <!-- Alert Messages -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
         <!-- Search and Add Button Row -->
         <div class="row my-3">
             <div class="col-md-6">
@@ -74,7 +66,6 @@
             </div>
         </div>
     </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
@@ -149,6 +140,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-@include('components.table-styles')
 </x-app-layout>

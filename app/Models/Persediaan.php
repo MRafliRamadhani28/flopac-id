@@ -12,12 +12,14 @@ class Persediaan extends Model
     protected $fillable = [
         'barang_id',
         'safety_stock',
-        'stock'
+        'stock',
+        'dipakai'
     ];
 
     protected $casts = [
         'safety_stock' => 'integer',
-        'stock' => 'integer'
+        'stock' => 'integer',
+        'dipakai' => 'integer'
     ];
 
     public function barang(): BelongsTo

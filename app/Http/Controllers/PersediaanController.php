@@ -87,8 +87,41 @@ class PersediaanController extends Controller
      */
     public function destroy(string $id)
     {
-        // Delete tidak diperbolehkan - data persediaan terikat dengan barang
         return redirect()->route('persediaan.index')
                         ->with('info', 'Data persediaan tidak dapat dihapus karena terikat dengan data barang.');
+    }
+
+    /**
+     * Get stock data for pesanan processing
+     */
+    public function getStockData()
+    {
+        try {
+            $persediaan = Persediaan::with('barang')
+                ->whereHas('barang')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama_barang' => $item->barang->nama_barang ?? 'Barang Tidak Ditemukan',
+                        'warna' => $item->barang->warna ?? '-',
+                        'satuan' => $item->barang->satuan ?? '-',
+                        'stock' => $item->stock ?? 0,
+                        'dipakai' => $item->dipakai ?? 0,
+                        'stok_tersedia' => $item->stock ?? 0,
+                    ];
+                })
+                ->filter(function ($item) {
+                    return $item['stok_tersedia'] > 0;
+                })
+                ->values();
+
+            return response()->json($persediaan);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Gagal mengambil data stok',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

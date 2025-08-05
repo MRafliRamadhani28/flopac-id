@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BarangMasuk;
 use App\Models\Barang;
 use App\Models\BarangMasukDetail;
+use App\Models\Persediaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -49,12 +50,23 @@ class BarangMasukController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(BarangMasuk $barangMasuk)
+    {
+        $barangMasuk->load(['creator', 'details.barang']);
+
+        return view('barang_masuk.show', compact('barangMasuk'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $barangs = Barang::all();
-        $noBarangMasuk = BarangMasuk::generateNoBarangMasuk();
+        $barangs = Barang::with('persediaan')->get();
+        // Preview nomor yang akan di-generate saat data disimpan
+        $noBarangMasuk = \App\Models\DocumentCounter::previewNextNumber('barang_masuk', 'IN', 5);
 
         return view('barang_masuk.create', compact('barangs', 'noBarangMasuk'));
     }
@@ -68,21 +80,25 @@ class BarangMasukController extends Controller
 
         DB::beginTransaction();
         try {
-            // Create BarangMasuk
+            // Create BarangMasuk - nomor akan auto-generate oleh model event
             $barangMasuk = BarangMasuk::create([
-                'no_barang_masuk' => BarangMasuk::generateNoBarangMasuk(),
                 'tanggal_masuk' => $request->tanggal_masuk,
                 'keterangan' => $request->keterangan,
                 'created_by' => Auth::id(),
             ]);
 
-            // Create BarangMasukDetail
+            // Create BarangMasukDetail and update stock persediaan
             foreach ($request->barang_id as $index => $barangId) {
+                $qty = $request->qty[$index];
+                
                 BarangMasukDetail::create([
                     'barang_masuk_id' => $barangMasuk->id,
                     'barang_id' => $barangId,
-                    'qty' => $request->qty[$index],
+                    'qty' => $qty,
                 ]);
+                
+                // Update stock persediaan - tambah stock
+                $this->updateStockPersediaan($barangId, $qty, 'tambah');
             }
 
             DB::commit();
@@ -191,6 +207,11 @@ class BarangMasukController extends Controller
         $response = null;
         DB::beginTransaction();
         try {
+            // Restore stock persediaan before deleting
+            foreach ($barangMasuk->details as $detail) {
+                $this->updateStockPersediaan($detail->barang_id, $detail->qty, 'kurang');
+            }
+            
             // Delete detail records first
             $barangMasuk->details()->delete();
             
@@ -224,5 +245,30 @@ class BarangMasukController extends Controller
             }
         }
         return $response;
+    }
+
+    /**
+     * Update stock persediaan
+     * 
+     * @param int $barangId
+     * @param int $qty
+     * @param string $operasi ('tambah' atau 'kurang')
+     */
+    private function updateStockPersediaan($barangId, $qty, $operasi)
+    {
+        // Cari atau buat record persediaan
+        $persediaan = Persediaan::firstOrCreate(
+            ['barang_id' => $barangId],
+            ['stock' => 0, 'safety_stock' => 5]
+        );
+
+        // Update stock berdasarkan operasi
+        if ($operasi === 'tambah') {
+            $persediaan->stock += $qty;
+        } elseif ($operasi === 'kurang') {
+            $persediaan->stock = max(0, $persediaan->stock - $qty); // Tidak boleh negatif
+        }
+
+        $persediaan->save();
     }
 }

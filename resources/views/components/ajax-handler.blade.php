@@ -152,6 +152,7 @@ function setupAjaxDelete(buttonSelector, options = {}) {
             deleteUrl: button.data('url') || button.data('delete-url') || button.attr('href'),
             confirmText: 'Ya, Hapus!',
             cancelText: 'Batal',
+            successRedirectUrl: null,
             onSuccess: null,
             onError: null,
             ...options
@@ -202,6 +203,8 @@ function setupAjaxDelete(buttonSelector, options = {}) {
                         }).then(() => {
                             if (config.onSuccess) {
                                 config.onSuccess(response, button);
+                            } else if (config.successRedirectUrl) {
+                                window.location.href = config.successRedirectUrl;
                             } else if (response.redirect) {
                                 window.location.href = response.redirect;
                             } else {

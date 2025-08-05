@@ -27,8 +27,8 @@ Route::middleware('auth')->group(function () {
     // Barang routes - Owner, Persediaan
     Route::middleware('role:Owner,Persediaan')->group(function () {
         Route::resource('barang', BarangController::class)->except(['show']);
-        Route::resource('barang_masuk', BarangMasukController::class)->except(['show']);
-        Route::resource('penyesuaian_persediaan', PenyesuaianPersediaanController::class);
+        Route::resource('barang_masuk', BarangMasukController::class)->except(['edit', 'update']);
+        Route::resource('penyesuaian_persediaan', PenyesuaianPersediaanController::class)->except(['edit', 'update']);
     });
 
     // User routes - Owner only
@@ -45,7 +45,13 @@ Route::middleware('auth')->group(function () {
 
     // Pesanan routes - Owner, Produksi
     Route::middleware('role:Owner,Produksi')->group(function () {
-        Route::resource('pesanan', PesananController::class);
+        Route::get('pesanan/next-number', [PesananController::class, 'getNextNumber'])->name('pesanan.next_number');
+        Route::get('pesanan/production-usage-data', [PesananController::class, 'getProductionUsageData'])->name('pesanan.production-usage-data');
+        Route::post('pesanan/process-stock', [PesananController::class, 'processStock'])->name('pesanan.process-stock');
+        Route::post('pesanan/complete-production', [PesananController::class, 'completeProduction'])->name('pesanan.complete-production');
+        Route::patch('pesanan/{pesanan}/update-status', [PesananController::class, 'updateStatus'])->name('pesanan.update-status');
+        Route::resource('pesanan', PesananController::class)->except(['edit']);
+        Route::get('api/persediaan/stock-data', [PersediaanController::class, 'getStockData'])->name('api.persediaan.stock-data');
     });
 });
 

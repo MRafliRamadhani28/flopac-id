@@ -178,6 +178,17 @@
         border-color: #dee2e6;
     }
 
+    .btn-outline-danger {
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-danger:hover {
+        transform: translateY(-1px);
+    }
+
     /* Form validation styling */
     .minimal-input.is-invalid,
     .minimal-select.is-invalid {
