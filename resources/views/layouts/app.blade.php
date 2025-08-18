@@ -114,11 +114,67 @@
         }
 
         /* Responsive notification dropdown */
-        @media (max-width: 576px) {
+        @media (max-width: 768px) {
             .notification-dropdown {
-                min-width: 280px !important;
-                max-width: 320px !important;
-                left: -200px !important;
+                width: 90vw !important;
+                right: 5vw !important;
+                left: auto !important;
+            }
+        }
+
+        /* User Dropdown Styling */
+        .user-dropdown {
+            min-width: 200px;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: white;
+        }
+
+        .user-dropdown .dropdown-item {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: var(--color-foreground);
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: var(--color-foreground);
+        }
+
+        .user-dropdown .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: #e9ecef;
+        }
+
+        .user-info {
+            background-color: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-foreground), #4AC8EA);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive user dropdown */
+        @media (max-width: 768px) {
+            .user-dropdown {
+                width: 90vw !important;
+                right: 5vw !important;
+                left: auto !important;
             }
         }
     </style>
@@ -240,7 +296,35 @@
                         </div>
                     </div>
                     
-                    <i data-lucide="circle-user-round" style="width: 32px; height: 32px; cursor: pointer;"></i>
+                    <!-- User Dropdown -->
+                    <div class="dropdown position-relative">
+                        <button class="btn btn-link p-0 border-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i data-lucide="circle-user-round" style="width: 32px; height: 32px; cursor: pointer; color: var(--color-foreground);"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end user-dropdown" aria-labelledby="userDropdown">
+                            <div class="user-info">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" style="color: var(--color-foreground); font-size: 0.875rem;">
+                                            {{ Auth::user()->name ?? 'User' }}
+                                        </div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">
+                                            {{ Auth::user()->email ?? '' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); confirmLogout();">
+                                <div class="d-flex align-items-center">
+                                    <i data-lucide="log-out" class="me-2" style="width: 16px; height: 16px;"></i>
+                                    Logout
+                                </div>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

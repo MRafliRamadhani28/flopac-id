@@ -79,10 +79,6 @@
                         @enderror
                     </div>
 
-                    <div class="text-end mb-3">
-                        <a href="#" class="small text-decoration-none" style="color: #016C89;">Lupa Password?</a>
-                    </div>
-
                     <button type="submit" class="btn btn-login">LOGIN</button>
                 </form>
             </div>
