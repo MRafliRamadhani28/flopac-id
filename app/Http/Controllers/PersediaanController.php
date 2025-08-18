@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Persediaan;
 use App\Models\Barang;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PersediaanController extends Controller
 {
@@ -13,7 +14,14 @@ class PersediaanController extends Controller
      */
     public function index()
     {
+        
         $this->ensurePersediaanForAllBarang();
+        
+        // Auto update safety stock untuk persediaan yang belum ada atau sudah lama
+        $this->autoUpdateSafetyStock();
+        
+        // Check dan generate notifikasi stock menipis
+        $this->checkStockNotifications();
         
         $persediaan = Persediaan::with('barang')->get();
         return view('persediaan.index', compact('persediaan'));
@@ -33,6 +41,30 @@ class PersediaanController extends Controller
                 'stock' => 0
             ]);
         }
+    }
+
+    /**
+     * Auto update safety stock untuk persediaan yang memerlukan update
+     */
+    private function autoUpdateSafetyStock()
+    {
+        // Update safety stock yang belum pernah dihitung (masih 0) atau sudah lama (>7 hari)
+        $persediaanList = Persediaan::where(function($query) {
+            $query->where('safety_stock', 0)
+                  ->orWhere('updated_at', '<', now()->subDays(7));
+        })->limit(10)->get(); // Batasi 10 item per request untuk performa
+
+        foreach ($persediaanList as $persediaan) {
+            $persediaan->updateSafetyStock();
+        }
+    }
+
+    /**
+     * Check dan generate notifikasi stock menipis
+     */
+    private function checkStockNotifications()
+    {
+        Persediaan::checkAllStockNotifications();
     }
 
     /**
@@ -123,5 +155,19 @@ class PersediaanController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function exportStokMenipis()
+    {
+        $data = Persediaan::with('barang')
+            ->where('safety_stock', '!=', 0)
+            ->whereColumn('stock', '<=', 'safety_stock')
+            ->orderBy('stock', 'asc')
+            ->get();
+
+        $pdf = Pdf::loadView('persediaan.stok_menipis_pdf', compact('data'));
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('laporan_stok_menipis_' . date('Ymd') . '.pdf');
     }
 }

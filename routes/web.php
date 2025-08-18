@@ -6,8 +6,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\PersediaanController;
 use App\Http\Controllers\PenyesuaianPersediaanController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PesananController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,9 +17,7 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -35,23 +35,35 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:Owner')->group(function () {
         Route::resource('user', UserController::class)->except(['show']);
         Route::get('user-roles', [UserController::class, 'roles'])->name('user.roles');
+        Route::get('laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.exportPdf');
         Route::resource('laporan', LaporanController::class);
     });
 
-    // Persediaan routes - Owner, Persediaan, Produksi
+        // Persediaan routes - Owner, Persediaan, Produksi
     Route::middleware('role:Owner,Persediaan,Produksi')->group(function () {
+        Route::get('persediaan/export-stok-menipis', [PersediaanController::class, 'exportStokMenipis'])->name('persediaan.exportStokMenipis');
         Route::resource('persediaan', PersediaanController::class);
     });
 
     // Pesanan routes - Owner, Produksi
     Route::middleware('role:Owner,Produksi')->group(function () {
         Route::get('pesanan/next-number', [PesananController::class, 'getNextNumber'])->name('pesanan.next_number');
+        Route::get('pesanan/{pesanan}/edit-data', [PesananController::class, 'getEditData'])->name('pesanan.edit_data');
         Route::get('pesanan/production-usage-data', [PesananController::class, 'getProductionUsageData'])->name('pesanan.production-usage-data');
         Route::post('pesanan/process-stock', [PesananController::class, 'processStock'])->name('pesanan.process-stock');
         Route::post('pesanan/complete-production', [PesananController::class, 'completeProduction'])->name('pesanan.complete-production');
         Route::patch('pesanan/{pesanan}/update-status', [PesananController::class, 'updateStatus'])->name('pesanan.update-status');
-        Route::resource('pesanan', PesananController::class)->except(['edit']);
+        Route::resource('pesanan', PesananController::class);
         Route::get('api/persediaan/stock-data', [PersediaanController::class, 'getStockData'])->name('api.persediaan.stock-data');
+    });
+
+    // Notification routes - Accessible by all authenticated users
+    Route::middleware('auth')->group(function () {
+        Route::get('api/notifications', [NotificationController::class, 'getNotifications'])->name('api.notifications');
+        Route::get('api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count');
+        Route::post('api/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('api.notifications.mark-read');
+        Route::post('api/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
+        Route::delete('api/notifications/{id}', [NotificationController::class, 'delete'])->name('api.notifications.delete');
     });
 });
 

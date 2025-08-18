@@ -15,19 +15,23 @@
             </div>
         @endif
 
-        <!-- Search Row -->
-        <div class="row mb-3">
-            <div class="col-md-6"></div>
-            <div class="col-md-2"></div>
-            <div class="col-md-4 text-end">
-                <div class="custom-search-container">
-                    <input type="text" id="customSearch" class="custom-search-input" placeholder="Search">
-                    <i data-lucide="search" class="custom-search-icon" style="width: 18px; height: 18px;"></i>
-                </div>
+        <div class="mb-3 text-end">
+            <a href="{{ route('persediaan.exportStokMenipis') }}" target="_blank" class="btn btn-info"
+                style="border-radius: 8px;">
+                <p class="d-flex align-items-center mb-0">
+                    <i data-lucide="download" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                    Export PDF Stok Menipis
+                </p>
+            </a>
+        </div>
+
+        <div class="mb-3 d-flex justify-end">
+            <div class="custom-search-container">
+                <input type="text" id="customSearch" class="custom-search-input" placeholder="Search">
+                <i data-lucide="search" class="custom-search-icon" style="width: 18px; height: 18px;"></i>
             </div>
         </div>
 
-        <!-- Table Card -->
         <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 12px;">
             <div class="card-body" style="padding: 1.5rem;">
                 <div class="table-responsive">
@@ -54,17 +58,17 @@
                                     <td>{{ $item->barang->warna }}</td>
                                     <td>{{ $item->barang->satuan }}</td>
                                     <td style="text-align: center;">
-                                        <span class="badge bg-{{ $item->getSafetyStockColor() }}">
+                                        <span class="text-dark">
                                             {{ $item->safety_stock }}
                                         </span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <span class="badge bg-secondary">
+                                        <span class="badge bg-{{ $item->dipakai > 0 ? 'info' : 'secondary' }}">
                                             {{ $item->dipakai ?? 0 }}
                                         </span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <span class="badge bg-{{ $item->stock > $item->safety_stock ? 'success' : ($item->stock > 0 ? 'warning' : 'danger') }}">
+                                        <span class="badge bg-{{ $item->getSafetyStockColor() }}">
                                             {{ $item->stock }}
                                         </span>
                                     </td>

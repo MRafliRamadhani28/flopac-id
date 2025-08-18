@@ -178,7 +178,34 @@
                 </h5>
 
                 <div class="d-flex align-items-center gap-8">
-                    <i data-lucide="bell" style="width: 28px; height: 28px; cursor: pointer;"></i>
+                    <!-- Notification Dropdown -->
+                    <div class="dropdown position-relative">
+                        <button class="btn btn-link p-0 border-0 position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i data-lucide="bell" style="width: 28px; height: 28px; cursor: pointer; color: var(--color-foreground);"></i>
+                            <!-- Badge for unread count -->
+                            <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.75rem;">
+                                0
+                            </span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                            <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Notifikasi</h6>
+                                <button class="btn btn-sm btn-outline-primary" id="markAllAsRead" style="font-size: 0.75rem;">
+                                    Tandai semua dibaca
+                                </button>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div id="notificationList">
+                                <!-- Notifications will be loaded here -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <i data-lucide="circle-user-round" style="width: 32px; height: 32px; cursor: pointer;"></i>
                 </div>
             </div>
@@ -207,6 +234,187 @@
                 }
             });
         }
+
+        // Notification System
+        class NotificationManager {
+            constructor() {
+                this.notificationBadge = document.getElementById('notificationBadge');
+                this.notificationList = document.getElementById('notificationList');
+                this.markAllBtn = document.getElementById('markAllAsRead');
+                this.init();
+            }
+
+            init() {
+                // Load notifications when dropdown is opened
+                document.getElementById('notificationDropdown').addEventListener('click', () => {
+                    this.loadNotifications();
+                });
+
+                // Mark all as read
+                this.markAllBtn.addEventListener('click', () => {
+                    this.markAllAsRead();
+                });
+
+                // Load unread count on page load
+                this.loadUnreadCount();
+
+                // Auto refresh every 30 seconds
+                setInterval(() => {
+                    this.loadUnreadCount();
+                }, 30000);
+            }
+
+            async loadNotifications() {
+                try {
+                    this.notificationList.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
+                    
+                    const response = await fetch('/api/notifications');
+                    const data = await response.json();
+                    
+                    this.renderNotifications(data.notifications);
+                    this.updateBadge(data.unread_count);
+                } catch (error) {
+                    console.error('Error loading notifications:', error);
+                    this.notificationList.innerHTML = '<div class="text-center py-3 text-muted">Gagal memuat notifikasi</div>';
+                }
+            }
+
+            async loadUnreadCount() {
+                try {
+                    const response = await fetch('/api/notifications/unread-count');
+                    const data = await response.json();
+                    this.updateBadge(data.count);
+                } catch (error) {
+                    console.error('Error loading unread count:', error);
+                }
+            }
+
+            renderNotifications(notifications) {
+                if (notifications.length === 0) {
+                    this.notificationList.innerHTML = '<div class="text-center py-3 text-muted">Tidak ada notifikasi</div>';
+                    return;
+                }
+
+                const html = notifications.map(notification => `
+                    <div class="dropdown-item notification-item ${notification.is_read ? 'read' : 'unread'}" 
+                         data-id="${notification.id}" 
+                         style="cursor: pointer; border-left: 3px solid ${this.getColorHex(notification.color)}; ${!notification.is_read ? 'background-color: #f8f9fa;' : ''}">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0 me-2">
+                                <i data-lucide="${notification.icon}" style="width: 20px; height: 20px; color: ${this.getColorHex(notification.color)};"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" style="font-size: 0.875rem; font-weight: 600;">${notification.title}</h6>
+                                <p class="mb-1" style="font-size: 0.8rem; color: #6c757d;">${notification.message}</p>
+                                <small class="text-muted">${notification.time_ago}</small>
+                            </div>
+                            ${!notification.is_read ? '<div class="flex-shrink-0"><span class="badge bg-primary rounded-pill" style="width: 8px; height: 8px; padding: 0;"></span></div>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+                this.notificationList.innerHTML = html;
+                
+                // Re-initialize Lucide icons
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+
+                // Add click handlers
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        this.markAsRead(id, e.currentTarget);
+                    });
+                });
+            }
+
+            async markAsRead(id, element) {
+                try {
+                    const response = await fetch(`/api/notifications/${id}/mark-read`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Update UI
+                        element.classList.remove('unread');
+                        element.classList.add('read');
+                        element.style.backgroundColor = '';
+                        
+                        // Remove unread indicator
+                        const unreadIndicator = element.querySelector('.badge');
+                        if (unreadIndicator) {
+                            unreadIndicator.remove();
+                        }
+
+                        this.updateBadge(data.unread_count);
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            }
+
+            async markAllAsRead() {
+                try {
+                    const response = await fetch('/api/notifications/mark-all-read', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Reload notifications
+                        this.loadNotifications();
+                        this.updateBadge(0);
+                        
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error marking all as read:', error);
+                }
+            }
+
+            updateBadge(count) {
+                if (count > 0) {
+                    this.notificationBadge.textContent = count > 99 ? '99+' : count;
+                    this.notificationBadge.style.display = 'block';
+                } else {
+                    this.notificationBadge.style.display = 'none';
+                }
+            }
+
+            getColorHex(color) {
+                const colorMap = {
+                    'warning': '#ffc107',
+                    'danger': '#dc3545',
+                    'info': '#0dcaf0',
+                    'success': '#198754'
+                };
+                return colorMap[color] || '#6c757d';
+            }
+        }
+
+        // Initialize notification manager when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            new NotificationManager();
+        });
     </script>
 
     <!-- AJAX Form Handler Component -->

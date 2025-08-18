@@ -15,7 +15,7 @@ class PesananController extends Controller
         'nama_pelanggan' => 'required|string|max:255',
         'alamat' => 'required|string|max:1000',
         'model' => 'required|string|max:255',
-        'sumber' => 'required|string|max:255',
+        'sumber' => 'required|in:Shopee,Tiktok,Instagram,WhatsApp,Offline',
         'catatan' => 'nullable|string|max:1000',
         'tanggal_pesanan' => 'required|date',
         'tenggat_pesanan' => 'required|date|after_or_equal:tanggal_pesanan',
@@ -26,6 +26,7 @@ class PesananController extends Controller
         'alamat.required' => 'Alamat harus diisi.',
         'model.required' => 'Model harus diisi.',
         'sumber.required' => 'Sumber harus diisi.',
+        'sumber.in' => 'Sumber harus dipilih dari pilihan yang tersedia.',
         'tanggal_pesanan.required' => 'Tanggal pesanan harus diisi.',
         'tenggat_pesanan.required' => 'Tenggat pesanan harus diisi.',
         'tenggat_pesanan.after_or_equal' => 'Tenggat pesanan tidak boleh lebih awal dari tanggal pesanan.',
@@ -60,6 +61,31 @@ class PesananController extends Controller
         $pesanan->load(['creator', 'processor', 'persediaanUsage.persediaan.barang']);
         
         return view('pesanan.show', compact('pesanan'));
+    }
+
+    /**
+     * Get pesanan data for edit modal (AJAX)
+     */
+    public function getEditData(Pesanan $pesanan)
+    {
+        $pesanan->load(['creator', 'processor']);
+        
+        return response()->json([
+            'id' => $pesanan->id,
+            'no_pesanan' => $pesanan->no_pesanan,
+            'nama_pelanggan' => $pesanan->nama_pelanggan,
+            'alamat' => $pesanan->alamat,
+            'model' => $pesanan->model,
+            'sumber' => $pesanan->sumber,
+            'catatan' => $pesanan->catatan,
+            'tanggal_pesanan' => $pesanan->tanggal_pesanan->format('Y-m-d'),
+            'tenggat_pesanan' => $pesanan->tenggat_pesanan->format('Y-m-d'),
+            'status' => $pesanan->status,
+            'is_overdue' => $pesanan->is_overdue,
+            'creator_name' => $pesanan->creator ? $pesanan->creator->name : '-',
+            'processor_name' => $pesanan->processor ? $pesanan->processor->name : null,
+            'created_at' => $pesanan->created_at->format('d/m/Y H:i'),
+        ]);
     }
 
     /**
@@ -118,7 +144,18 @@ class PesananController extends Controller
      */
     public function update(Request $request, Pesanan $pesanan)
     {
-        $request->validate(self::VALIDATION_RULES, self::VALIDATION_MESSAGES);
+        try {
+            $request->validate(self::VALIDATION_RULES, self::VALIDATION_MESSAGES);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data tidak valid.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
 
         DB::beginTransaction();
         try {

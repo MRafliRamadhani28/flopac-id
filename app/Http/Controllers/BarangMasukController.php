@@ -259,7 +259,7 @@ class BarangMasukController extends Controller
         // Cari atau buat record persediaan
         $persediaan = Persediaan::firstOrCreate(
             ['barang_id' => $barangId],
-            ['stock' => 0, 'safety_stock' => 5]
+            ['stock' => 0, 'safety_stock' => 0]
         );
 
         // Update stock berdasarkan operasi

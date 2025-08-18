@@ -43,6 +43,7 @@
                         <thead>
                             <tr>
                                 <th style="font-weight: 600; color: var(--color-foreground);">No. Pesanan</th>
+                                <th style="font-weight: 600; color: var(--color-foreground);">Tgl. Pesanan</th>
                                 <th style="font-weight: 600; color: var(--color-foreground);">Nama Pelanggan</th>
                                 <th style="font-weight: 600; color: var(--color-foreground);">Alamat</th>
                                 <th style="font-weight: 600; color: var(--color-foreground);">Model</th>
@@ -58,6 +59,7 @@
                                 <td>
                                     <strong style="font-weight: 500;">{{ $pesanan->no_pesanan }}</strong>
                                 </td>
+                                <td style="font-weight: 500;">{{ $pesanan->tanggal_pesanan }}</td>
                                 <td style="font-weight: 500;">{{ $pesanan->nama_pelanggan }}</td>
                                 <td>{{ Str::limit($pesanan->alamat, 30) }}</td>
                                 <td>{{ $pesanan->model }}</td>
@@ -124,7 +126,9 @@
             <div class="modal-content" style="background: #ffffff; border-radius: 16px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
                 <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; background: #ffffff; border-radius: 16px 16px 0 0; padding: 1.5rem 2rem;">
                     <h5 class="modal-title" id="createPesananModalLabel" style="color: var(--color-foreground); font-weight: 600; font-size: 1.25rem;">
-                        <i data-lucide="plus" class="me-2" style="color: var(--color-foreground);"></i> Tambah Pesanan
+                        <p class="d-flex align-items-center mb-0">
+                            <i data-lucide="plus" class="me-2" style="color: var(--color-foreground);"></i> Tambah Pesanan
+                        </p>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -165,9 +169,16 @@
                             <!-- Sumber -->
                             <div class="col-md-6 mb-3">
                                 <label for="create_sumber" class="form-label" style="color: var(--color-foreground); font-weight: 500; margin-bottom: 0.5rem; font-size: 14px;">Sumber <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control minimal-input" id="create_sumber" name="sumber" placeholder="Masukkan sumber pesanan" required>
+                                <select class="form-select minimal-input" id="create_sumber" name="sumber" required>
+                                    <option value="">Pilih sumber pesanan</option>
+                                    <option value="Shopee">Shopee</option>
+                                    <option value="Tiktok">Tiktok</option>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Offline">Offline</option>
+                                </select>
                                 <div class="invalid-feedback"></div>
-                            </div>
+                            </div> 
 
                             <!-- Tanggal Pesanan -->
                             <div class="col-md-6 mb-3">
@@ -269,14 +280,19 @@
                                 <div class="invalid-feedback"></div>
                             </div>
 
-                            <!-- Sumber -->
-                            <div class="col-md-6 mb-3">
-                                <label for="edit_sumber" class="form-label" style="color: var(--color-foreground); font-weight: 500; margin-bottom: 0.5rem; font-size: 14px;">Sumber <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control minimal-input" id="edit_sumber" name="sumber" placeholder="Masukkan sumber pesanan" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-
-                            <!-- Tanggal Pesanan -->
+            <!-- Sumber -->
+            <div class="col-md-6 mb-3">
+                <label for="edit_sumber" class="form-label" style="color: var(--color-foreground); font-weight: 500; margin-bottom: 0.5rem; font-size: 14px;">Sumber <span class="text-danger">*</span></label>
+                <select class="form-select minimal-input" id="edit_sumber" name="sumber" required>
+                    <option value="">Pilih sumber pesanan</option>
+                    <option value="Shopee">Shopee</option>
+                    <option value="Tiktok">Tiktok</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Offline">Offline</option>
+                </select>
+                <div class="invalid-feedback"></div>
+            </div>                            <!-- Tanggal Pesanan -->
                             <div class="col-md-6 mb-3">
                                 <label for="edit_tanggal_pesanan" class="form-label" style="color: var(--color-foreground); font-weight: 500; margin-bottom: 0.5rem; font-size: 14px;">Tanggal Pesanan <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control minimal-input" id="edit_tanggal_pesanan" name="tanggal_pesanan" required>
@@ -497,7 +513,7 @@
                             }
                         },
                         columnDefs: [
-                            { orderable: false, targets: [6] }
+                            { orderable: false, targets: [7] }
                         ],
                         order: [[0, 'desc']],
                         initComplete: function() {
@@ -529,7 +545,18 @@
         $('#createPesananModal').on('show.bs.modal', function() {
             loadNextPesananNumber();
             resetCreateForm();
-            $('#create_tanggal_pesanan').val(new Date().toISOString().split('T')[0]);
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const localDate = `${year}-${month}-${day}`;
+            
+            $('#create_tanggal_pesanan').val(localDate);
+        });
+
+        $('#editPesananModal').on('show.bs.modal', function() {
+            resetEditForm();
         });
 
         $(document).on('click', '.edit-pesanan-btn', function() {
@@ -621,6 +648,18 @@
             }
         });
 
+        // Clear validation errors when typing in edit form
+        $('#editPesananModal').on('input change', '.form-control, .form-select', function() {
+            $(this).removeClass('is-invalid');
+            $(this).siblings('.invalid-feedback').text('');
+        });
+
+        // Clear validation errors when typing in create form
+        $('#createPesananModal').on('input change', '.form-control, .form-select', function() {
+            $(this).removeClass('is-invalid');
+            $(this).siblings('.invalid-feedback').text('');
+        });
+
         // Functions
         function loadNextPesananNumber() {
             $.ajax({
@@ -637,7 +676,7 @@
 
         function loadPesananData(pesananId) {
             $.ajax({
-                url: `/pesanan/${pesananId}/edit`,
+                url: `{{ url('pesanan') }}/${pesananId}/edit-data`,
                 type: 'GET',
                 success: function(data) {
                     populateEditForm(data);
@@ -691,6 +730,17 @@
             $('#createPesananForm')[0].reset();
             $('.form-control, .form-select').removeClass('is-invalid');
             $('.invalid-feedback').text('');
+        }
+
+        function resetEditForm() {
+            $('#editPesananForm')[0].reset();
+            $('.form-control, .form-select').removeClass('is-invalid');
+            $('.invalid-feedback').text('');
+            // Reset display elements
+            $('#edit_no_pesanan').text('-');
+            $('#edit_status_badge').html('-');
+            $('#edit_overdue_badge').html('');
+            $('#edit_info').html('-');
         }
 
         // Initialize Lucide icons
@@ -852,9 +902,13 @@
             const formData = $('#editPesananForm').serialize();
             
             $.ajax({
-                url: `/pesanan/${pesananId}`,
+                url: `{{ url('pesanan') }}/${pesananId}`,
                 type: 'POST',
                 data: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
                 success: function(response) {
                     Swal.fire({
                         title: 'Pesanan Berhasil Diupdate!',
