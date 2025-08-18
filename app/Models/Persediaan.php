@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use App\Models\PesananPersediaan;
 use App\Models\Notification;
@@ -28,6 +29,14 @@ class Persediaan extends Model
     public function barang(): BelongsTo
     {
         return $this->belongsTo(Barang::class);
+    }
+
+    /**
+     * Relasi ke PesananPersediaan
+     */
+    public function pesananPersediaan(): HasMany
+    {
+        return $this->hasMany(PesananPersediaan::class);
     }
 
     /**

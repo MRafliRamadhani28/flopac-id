@@ -114,8 +114,10 @@
             <td>{{ count($groupedData) }} record</td>
         </tr>
         <tr>
+            <td class="label">Filter Barang:</td>
+            <td>{{ $filterInfo['barang_name'] ?? 'Semua Barang' }}</td>
             <td class="label">Periode:</td>
-            <td colspan="3">Data Pemakaian Stock Tergrupkan per Tanggal dan Barang</td>
+            <td>{{ $filterInfo['start_date']->format('d/m/Y') }} - {{ $filterInfo['end_date']->format('d/m/Y') }}</td>
         </tr>
     </table>
 

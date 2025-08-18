@@ -15,17 +15,41 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Get all stock usage data with relations and group by date and item
-        $rawData = PesananPersediaan::with([
+        // Get filter parameters
+        $barangId = $request->get('barang_id');
+        $startDate = $request->get('start_date', now()->subDays(30)->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->format('Y-m-d'));
+        
+        // Validate dates
+        try {
+            $startDate = Carbon::parse($startDate);
+            $endDate = Carbon::parse($endDate);
+        } catch (\Exception $e) {
+            $startDate = now()->subDays(30);
+            $endDate = now();
+        }
+
+        // Build query with filters
+        $query = PesananPersediaan::with([
             'pesanan', 
             'persediaan.barang'
         ])
-        ->whereHas('pesanan')
+        ->whereHas('pesanan', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('tanggal_pesanan', [$startDate, $endDate]);
+        })
         ->whereHas('persediaan.barang')
-        ->where('jumlah_dipakai', '>', 0)
-        ->get();
+        ->where('jumlah_dipakai', '>', 0);
+
+        // Apply barang filter if specified
+        if ($barangId) {
+            $query->whereHas('persediaan', function($q) use ($barangId) {
+                $q->where('barang_id', $barangId);
+            });
+        }
+
+        $rawData = $query->get();
 
         // Group by date and barang, then sum quantities
         $groupedData = $rawData->groupBy(function($item) {
@@ -48,7 +72,12 @@ class LaporanController extends Controller
             ];
         })->sortByDesc('tanggal')->values();
 
-        return view('laporan.index', compact('groupedData'));
+        // Get available barang for filter dropdown
+        $availableBarang = Barang::whereHas('persediaan.pesananPersediaan', function($q) {
+            $q->where('jumlah_dipakai', '>', 0);
+        })->orderBy('nama_barang')->get();
+
+        return view('laporan.index', compact('groupedData', 'availableBarang'));
     }
 
     public function show($date_barang_id)
@@ -106,17 +135,41 @@ class LaporanController extends Controller
         return view('laporan.show', compact('usageRecords', 'barang', 'tanggal', 'totalStockUsed', 'totalOrders'));
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        // Get all stock usage data with relations and group by date and item
-        $rawData = PesananPersediaan::with([
+        // Get filter parameters (same as index method)
+        $barangId = $request->get('barang_id');
+        $startDate = $request->get('start_date', now()->subDays(30)->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->format('Y-m-d'));
+        
+        // Validate dates
+        try {
+            $startDate = Carbon::parse($startDate);
+            $endDate = Carbon::parse($endDate);
+        } catch (\Exception $e) {
+            $startDate = now()->subDays(30);
+            $endDate = now();
+        }
+
+        // Build query with filters (same logic as index)
+        $query = PesananPersediaan::with([
             'pesanan', 
             'persediaan.barang'
         ])
-        ->whereHas('pesanan')
+        ->whereHas('pesanan', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('tanggal_pesanan', [$startDate, $endDate]);
+        })
         ->whereHas('persediaan.barang')
-        ->where('jumlah_dipakai', '>', 0)
-        ->get();
+        ->where('jumlah_dipakai', '>', 0);
+
+        // Apply barang filter if specified
+        if ($barangId) {
+            $query->whereHas('persediaan', function($q) use ($barangId) {
+                $q->where('barang_id', $barangId);
+            });
+        }
+
+        $rawData = $query->get();
 
         // Group by date and barang, then sum quantities
         $groupedData = $rawData->groupBy(function($item) {
@@ -134,8 +187,29 @@ class LaporanController extends Controller
             ];
         })->sortByDesc('tanggal')->values();
 
-        $pdf = Pdf::loadView('laporan.pdf', compact('groupedData'));
+        // Get filter info for PDF header
+        $selectedBarang = null;
+        if ($barangId) {
+            $selectedBarang = Barang::find($barangId);
+        }
+
+        $filterInfo = [
+            'barang' => $selectedBarang,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'barang_name' => $selectedBarang ? $selectedBarang->nama_barang . ' - ' . $selectedBarang->warna : 'Semua Barang'
+        ];
+
+        $pdf = Pdf::loadView('laporan.pdf', compact('groupedData', 'filterInfo'));
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->download('laporan_pemakaian_stock_'.date('Ymd').'.pdf');
+        
+        // Generate filename with filter info
+        $filename = 'laporan_pemakaian_stock_' . $startDate->format('Ymd') . '_' . $endDate->format('Ymd');
+        if ($selectedBarang) {
+            $filename .= '_' . str_replace(' ', '_', $selectedBarang->nama_barang);
+        }
+        $filename .= '.pdf';
+        
+        return $pdf->download($filename);
     }
 }

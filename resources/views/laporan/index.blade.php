@@ -1,18 +1,69 @@
 <x-app-layout title="Laporan - Flopac.id" icon='<i data-lucide="file-chart-column" class="me-3"></i> Laporan'>
     <div class="container-fluid">
-        <div class="mb-3 text-end">
-            <a href="{{ route('laporan.exportPdf') }}" target="_blank" class="btn btn-info" style="border-radius: 8px;">
-                <p class="d-flex align-items-center mb-0">
-                    <i data-lucide="download" style="width: 16px; height: 16px; margin-right: 8px;"></i>
-                    Export PDF Laporan
-                </p>
-            </a>
+        <!-- Filter Section -->
+        <div class="card border-0 shadow-sm mb-4" style="background: var(--color-background); border-radius: 12px;">
+            <div class="card-body" style="padding: 1.5rem;">
+                <h6 class="mb-3" style="color: var(--color-foreground); font-weight: 600;">
+                    <p class="d-flex align-items-center mb-0">
+                        <i data-lucide="filter" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                        Filter Laporan
+                    </p>
+                </h6>
+                <form id="filterForm" method="GET" action="{{ route('laporan.index') }}">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Nama Barang</label>
+                            <select name="barang_id" class="form-select" style="border-radius: 8px;">
+                                <option value="">Semua Barang</option>
+                                @foreach($availableBarang as $barang)
+                                    <option value="{{ $barang->id }}" {{ request('barang_id') == $barang->id ? 'selected' : '' }}>
+                                        {{ $barang->nama_barang }} - {{ $barang->warna }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Tanggal Mulai</label>
+                            <input type="date" name="start_date" class="form-control" style="border-radius: 8px;" 
+                                   value="{{ request('start_date') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Tanggal Akhir</label>
+                            <input type="date" name="end_date" class="form-control" style="border-radius: 8px;" 
+                                   value="{{ request('end_date') }}">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="d-flex gap-2 w-100">
+                                <button type="submit" class="btn btn-info" style="border-radius: 8px;">
+                                    <p class="d-flex align-items-center mb-0">
+                                        <i data-lucide="search" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                                        Filter
+                                    </p>
+                                </button>
+                                <a href="{{ route('laporan.index') }}" class="btn btn-outline-secondary" style="border-radius: 8px;">
+                                    <p class="d-flex align-items-center mb-0">
+                                        <i data-lucide="x" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                                        Reset
+                                    </p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <div class="mb-3 d-flex justify-end">
-            <div class="custom-search-container">
-                <input type="text" id="customSearch" class="custom-search-input" placeholder="Search">
-                <i data-lucide="search" class="custom-search-icon" style="width: 18px; height: 18px;"></i>
+        <!-- Export & Search Section -->
+        <div class="mb-3 d-flex justify-content-end align-items-center">
+            <div>
+                @if($groupedData->count() > 0)
+                    <a href="{{ route('laporan.exportPdf', request()->query()) }}" target="_blank" class="btn btn-info" style="border-radius: 8px;">
+                        <p class="d-flex align-items-center mb-0">
+                            <i data-lucide="download" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                            Export PDF Laporan
+                        </p>
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -113,11 +164,6 @@
                                 $('.dataTables_paginate').addClass('mt-3');
                                 $('.dataTables_info').addClass('mt-3');
                             }
-                        });
-
-                        // Custom search functionality
-                        $('#customSearch').on('keyup', function() {
-                            table.search(this.value).draw();
                         });
 
                         // Row click functionality
