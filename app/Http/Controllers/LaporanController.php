@@ -70,7 +70,7 @@ class LaporanController extends Controller
                 'pesanan_ids' => $pesananIds, // For detail view
                 'raw_data' => $group // Keep raw data for detail view
             ];
-        })->sortByDesc('tanggal')->values();
+        })->sortBy('tanggal')->values();
 
         // Get available barang for filter dropdown
         $availableBarang = Barang::whereHas('persediaan.pesananPersediaan', function($q) {
@@ -185,7 +185,7 @@ class LaporanController extends Controller
                 'total_stock_used' => $totalStockUsed,
                 'total_orders' => $totalOrders
             ];
-        })->sortByDesc('tanggal')->values();
+        })->sortBy('tanggal')->values();
 
         // Get filter info for PDF header
         $selectedBarang = null;

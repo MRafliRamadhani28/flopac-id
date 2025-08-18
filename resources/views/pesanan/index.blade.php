@@ -349,6 +349,21 @@
                         </div>
                     </div>
 
+                    <!-- Search Bar for Stock Items -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="custom-search-container">
+                                <input type="text" id="stockSearch" class="custom-search-input" placeholder="Cari nama barang atau warna...">
+                                <i data-lucide="search" class="custom-search-icon" style="width: 18px; height: 18px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <span class="text-muted" id="stockSearchResults" style="font-size: 14px; line-height: 38px;">
+                                <!-- Search results count will be shown here -->
+                            </span>
+                        </div>
+                    </div>
+
                     <form id="stockManagementForm">
                         @csrf
                         <input type="hidden" id="stock_pesanan_id" name="pesanan_id">
@@ -630,6 +645,27 @@
             if (validateStockForm()) {
                 submitStockManagement();
             }
+        });
+
+        // Stock search functionality
+        $('#stockSearch').on('input', function() {
+            const searchTerm = $(this).val().trim();
+            if (searchTerm === '') {
+                // If search is empty, show all items
+                const originalData = $('#stockManagementModal').data('originalStockData');
+                if (originalData) {
+                    populateStockTable(originalData);
+                }
+            } else {
+                // Filter table based on search term
+                filterStockTable(searchTerm);
+            }
+        });
+
+        // Clear search when modal is hidden
+        $('#stockManagementModal').on('hidden.bs.modal', function() {
+            $('#stockSearch').val('');
+            $('#stockSearchResults').text('');
         });
 
         // Production usage modal handler
@@ -1054,6 +1090,12 @@
             
             $('#stockTableBody').html(tableHtml);
             
+            // Store original stock data for search functionality
+            $('#stockManagementModal').data('originalStockData', stockData);
+            
+            // Update search results count
+            updateStockSearchResults(stockData.length, stockData.length);
+            
             // Add event listeners for stock input changes
             $('.stock-input').on('input', function() {
                 const availableStock = parseInt($(this).data('available'));
@@ -1075,6 +1117,123 @@
                 }
                 
                 // Validate input
+                if (inputValue > availableStock) {
+                    $(this).addClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').text(`Maksimal ${availableStock}`);
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').text('');
+                }
+            });
+            
+            // Initialize Lucide icons for new content
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Stock search functionality
+        function updateStockSearchResults(displayed, total) {
+            $('#stockSearchResults').text(`Menampilkan ${displayed} dari ${total} barang`);
+        }
+
+        function filterStockTable(searchTerm) {
+            const originalData = $('#stockManagementModal').data('originalStockData');
+            if (!originalData) return;
+
+            const filteredData = originalData.filter(item => {
+                const namaBarang = item.nama_barang.toLowerCase();
+                const warna = item.warna.toLowerCase();
+                const search = searchTerm.toLowerCase();
+                
+                return namaBarang.includes(search) || warna.includes(search);
+            });
+
+            // Regenerate table with filtered data
+            let tableHtml = '';
+            
+            if (filteredData.length === 0) {
+                tableHtml = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <p class="d-flex align-items-center mb-0">
+                                <i data-lucide="search-x" style="width: 24px; height: 24px;"></i>
+                                <div class="mt-2">Tidak ada barang yang cocok dengan pencarian "${searchTerm}"</div>
+                            </p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                filteredData.forEach(function(item, index) {
+                    const stokTersedia = item.stok_tersedia;
+                    
+                    tableHtml += `
+                        <tr>
+                            <td style="padding: 1rem;">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <strong style="color: var(--color-foreground);">${item.nama_barang}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge bg-secondary" style="font-size: 14px;">${item.warna}</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge bg-secondary" style="font-size: 14px;">${item.satuan}</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge ${stokTersedia > 0 ? 'bg-success' : 'bg-danger'}" style="font-size: 14px;">
+                                    ${stokTersedia}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <input type="hidden" name="persediaan_ids[]" value="${item.id}">
+                                <input type="number" 
+                                       class="form-control minimal-input stock-input" 
+                                       name="jumlah_dipakai[]" 
+                                       id="stock_${item.id}"
+                                       min="0" 
+                                       max="${stokTersedia}" 
+                                       data-available="${stokTersedia}"
+                                       data-index="${index}"
+                                       placeholder="0"
+                                       style="width: 120px;">
+                                <div class="invalid-feedback"></div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge bg-info sisa-stok" id="sisa_${item.id}" style="font-size: 14px;">
+                                    ${stokTersedia}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            $('#stockTableBody').html(tableHtml);
+            
+            // Update search results count
+            updateStockSearchResults(filteredData.length, originalData.length);
+            
+            // Re-bind event listeners for the new inputs
+            $('.stock-input').on('input', function() {
+                const availableStock = parseInt($(this).data('available'));
+                const inputValue = parseInt($(this).val() || '0');
+                const itemId = $(this).attr('id').replace('stock_', '');
+                const sisaStok = availableStock - inputValue;
+                
+                $(`#sisa_${itemId}`).text(sisaStok);
+                $(`#sisa_${itemId}`).removeClass('bg-info bg-warning bg-danger');
+                
+                if (sisaStok < 0) {
+                    $(`#sisa_${itemId}`).addClass('bg-danger');
+                } else if (sisaStok === 0) {
+                    $(`#sisa_${itemId}`).addClass('bg-warning');
+                } else {
+                    $(`#sisa_${itemId}`).addClass('bg-info');
+                }
+                
                 if (inputValue > availableStock) {
                     $(this).addClass('is-invalid');
                     $(this).siblings('.invalid-feedback').text(`Maksimal ${availableStock}`);

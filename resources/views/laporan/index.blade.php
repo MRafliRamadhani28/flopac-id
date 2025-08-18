@@ -149,7 +149,7 @@
                             "pageLength": 10,
                             "responsive": true,
                             "searching": false, // Disable built-in search since we have custom search
-                            "order": [[ 1, "desc" ]], // Sort by date column descending
+                            "order": [[ 1, "asc" ]], // Sort by date column ascending
                             "drawCallback": function() {
                                 // Re-initialize Lucide icons after each draw
                                 if (typeof lucide !== 'undefined') {
