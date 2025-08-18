@@ -181,23 +181,38 @@ class Persediaan extends Model
             return;
         }
 
+        // Gunakan logika yang sama dengan getSafetyStockStatus()
+        $stockStatus = $this->getSafetyStockStatus();
+        
         $notificationType = null;
         $title = '';
         $message = '';
 
-        // Tentukan jenis notifikasi berdasarkan level stock
-        if ($currentStock == 0) {
-            $notificationType = 'stock_empty';
-            $title = 'Stok Habis!';
-            $message = "{$barangName} sudah habis dan perlu segera diisi ulang.";
-        } elseif ($currentStock < ($safetyStock * 0.5)) {
-            $notificationType = 'stock_critical';
-            $title = 'Stok Kritis!';
-            $message = "{$barangName} dalam kondisi kritis (Stok: {$currentStock}, Safety Stock: {$safetyStock}).";
-        } elseif ($currentStock <= $safetyStock) {
-            $notificationType = 'stock_low';
-            $title = 'Stok Menipis';
-            $message = "{$barangName} mendekati batas minimum (Stok: {$currentStock}, Safety Stock: {$safetyStock}).";
+        // Generate notifikasi berdasarkan status dari getSafetyStockStatus()
+        switch ($stockStatus['status']) {
+            case 'critical':
+                if ($currentStock == 0) {
+                    $notificationType = 'stock_empty';
+                    $title = 'Stok Habis!';
+                    $message = "{$barangName} sudah habis dan perlu segera diisi ulang.";
+                } else {
+                    $notificationType = 'stock_critical';
+                    $title = 'Stok Kritis!';
+                    $message = "{$barangName} dalam kondisi kritis (Stok: {$currentStock}, Safety Stock: {$safetyStock}).";
+                }
+                break;
+                
+            case 'warning':
+                $notificationType = 'stock_low';
+                $title = 'Stok Mendekati Minimum';
+                $message = "{$barangName} mendekati batas minimum (Stok: {$currentStock}, Safety Stock: {$safetyStock}).";
+                break;
+                
+            case 'safe':
+            case 'default':
+            default:
+                // Tidak perlu notifikasi untuk status safe atau default
+                return;
         }
 
         // Generate notifikasi jika diperlukan
@@ -220,7 +235,8 @@ class Persediaan extends Model
                         'barang_name' => $barangName,
                         'current_stock' => $currentStock,
                         'safety_stock' => $safetyStock,
-                        'stock_level' => $this->getStockLevel()
+                        'stock_level' => $this->getStockLevelFromStatus($stockStatus['status']),
+                        'status_message' => $stockStatus['message']
                     ]
                 ]);
             }
@@ -228,22 +244,26 @@ class Persediaan extends Model
     }
 
     /**
-     * Get level stok untuk notifikasi
+     * Get level stok untuk notifikasi berdasarkan getSafetyStockStatus
      */
     private function getStockLevel(): string
     {
-        $currentStock = $this->stock;
-        $safetyStock = $this->safety_stock;
+        $status = $this->getSafetyStockStatus();
+        return $this->getStockLevelFromStatus($status['status']);
+    }
 
-        if ($currentStock == 0) {
-            return 'empty';
-        } elseif ($currentStock < ($safetyStock * 0.5)) {
-            return 'critical';
-        } elseif ($currentStock <= $safetyStock) {
-            return 'low';
-        } else {
-            return 'normal';
-        }
+    /**
+     * Convert status dari getSafetyStockStatus ke stock level
+     */
+    private function getStockLevelFromStatus(string $status): string
+    {
+        return match ($status) {
+            'critical' => $this->stock == 0 ? 'empty' : 'critical',
+            'warning' => 'low',
+            'safe' => 'normal',
+            'default' => 'unknown',
+            default => 'normal'
+        };
     }
 
     /**

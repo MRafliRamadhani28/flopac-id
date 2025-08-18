@@ -86,6 +86,41 @@
         body, .form-control, .form-select, .btn, .card, .nav-link, .modal, .dropdown-menu {
             font-family: 'Poppins', sans-serif !important;
         }
+
+        /* Notification Dropdown Styling */
+        .notification-dropdown {
+            min-width: 350px !important;
+            max-width: 500px !important;
+            width: max-content !important;
+        }
+
+        .notification-item {
+            max-width: none !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa !important;
+        }
+
+        .notification-item.unread {
+            background-color: #f8f9fa;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .notification-item.read {
+            background-color: transparent;
+        }
+
+        /* Responsive notification dropdown */
+        @media (max-width: 576px) {
+            .notification-dropdown {
+                min-width: 280px !important;
+                max-width: 320px !important;
+                left: -200px !important;
+            }
+        }
     </style>
 </head>
 
@@ -187,14 +222,13 @@
                                 0
                             </span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 350px; max-height: 400px; overflow-y: auto;">
-                            <div class="dropdown-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0">Notifikasi</h6>
-                                <button class="btn btn-sm btn-outline-primary" id="markAllAsRead" style="font-size: 0.75rem;">
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown" style="max-height: 400px; overflow-y: auto;">
+                            <div class="dropdown-header d-flex justify-content-between align-items-center" style="padding: 0.75rem 1rem; border-bottom: 1px solid #dee2e6;">
+                                <h6 class="mb-0" style="font-weight: 600;">Notifikasi</h6>
+                                <button class="btn btn-sm btn-outline-primary" id="markAllAsRead" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
                                     Tandai semua dibaca
                                 </button>
                             </div>
-                            <div class="dropdown-divider"></div>
                             <div id="notificationList">
                                 <!-- Notifications will be loaded here -->
                                 <div class="text-center py-3">
@@ -296,19 +330,19 @@
                 }
 
                 const html = notifications.map(notification => `
-                    <div class="dropdown-item notification-item ${notification.is_read ? 'read' : 'unread'}" 
+                    <div class="notification-item ${notification.is_read ? 'read' : 'unread'}" 
                          data-id="${notification.id}" 
-                         style="cursor: pointer; border-left: 3px solid ${this.getColorHex(notification.color)}; ${!notification.is_read ? 'background-color: #f8f9fa;' : ''}">
+                         style="cursor: pointer; padding: 0.75rem 1rem; border-left: 3px solid ${this.getColorHex(notification.color)}; transition: background-color 0.2s ease;">
                         <div class="d-flex align-items-start">
-                            <div class="flex-shrink-0 me-2">
+                            <div class="flex-shrink-0 me-3">
                                 <i data-lucide="${notification.icon}" style="width: 20px; height: 20px; color: ${this.getColorHex(notification.color)};"></i>
                             </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1" style="font-size: 0.875rem; font-weight: 600;">${notification.title}</h6>
-                                <p class="mb-1" style="font-size: 0.8rem; color: #6c757d;">${notification.message}</p>
-                                <small class="text-muted">${notification.time_ago}</small>
+                            <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
+                                <h6 class="mb-1" style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; line-height: 1.2;">${notification.title}</h6>
+                                <p class="mb-1" style="font-size: 0.8rem; color: #6c757d; margin-bottom: 0.5rem; line-height: 1.4; word-wrap: break-word;">${notification.message}</p>
+                                <small class="text-muted" style="font-size: 0.75rem;">${notification.time_ago}</small>
                             </div>
-                            ${!notification.is_read ? '<div class="flex-shrink-0"><span class="badge bg-primary rounded-pill" style="width: 8px; height: 8px; padding: 0;"></span></div>' : ''}
+                            ${!notification.is_read ? '<div class="flex-shrink-0 ms-3"><span class="badge bg-primary rounded-pill" style="width: 8px; height: 8px; padding: 0; margin-top: 2px;"></span></div>' : ''}
                         </div>
                     </div>
                 `).join('');
