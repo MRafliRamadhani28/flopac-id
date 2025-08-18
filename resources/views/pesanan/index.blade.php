@@ -812,6 +812,9 @@
             const tanggalPesanan = new Date($('#edit_tanggal_pesanan').val());
             const tenggatPesanan = new Date($('#edit_tenggat_pesanan').val());
             const today = new Date();
+
+            tanggalPesanan.setHours(0, 0, 0, 0);
+            tenggatPesanan.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
             
             if (tanggalPesanan > today) {
@@ -949,24 +952,11 @@
         function showStockManagementModal(pesananId, updateUrl) {
             // Set modal data
             $('#stock_pesanan_id').val(pesananId);
-            $('#stock_update_url').val(updateUrl);
-            
-            // Load pesanan data for display
-            $.ajax({
-                url: `/pesanan/${pesananId}/edit`,
-                type: 'GET',
-                success: function(data) {
-                    $('#pesananNumberStock').text(data.no_pesanan);
-                },
-                error: function() {
-                    $('#pesananNumberStock').text('-');
-                }
-            });
-            
-            // Load stock data
+            $('#stock_update_url').val(updateUrl);            
+            $('#pesananNumberStock').text(pesananId);
+
             loadStockData();
-            
-            // Show modal
+
             $('#stockManagementModal').modal('show');
         }
 

@@ -38,7 +38,6 @@ class Persediaan extends Model
      */
     public function calculateSafetyStock(): array
     {
-        // Konfigurasi parameter dari environment atau default
         $K = (float) env('SAFETY_STOCK_K', 1.65);
         $LT = (int) env('SAFETY_STOCK_LT', 7);
         $days = (int) env('SAFETY_STOCK_ANALYSIS_DAYS', 90);
@@ -75,21 +74,21 @@ class Persediaan extends Model
         }
 
         // Hitung rata-rata demand per hari (μD)
-        $meanDemand = array_sum($usageData) / count($usageData);
+        $meanDemand = array_sum($usageData) / $days;
 
         // Hitung standard deviasi demand (σD)
         $variance = 0;
         foreach ($usageData as $dailyUsage) {
             $variance += pow($dailyUsage - $meanDemand, 2);
         }
-        $standardDeviation = sqrt($variance / count($usageData));
+        $standardDeviation = sqrt($variance / $days);
 
         // Rumus Safety Stock = K × σD × √LT
         $safetyStock = $K * $standardDeviation * sqrt($LT);
 
         return [
             'success' => true,
-            'safety_stock' => round($safetyStock, 0), // Bulatkan ke integer
+            'safety_stock' => round($safetyStock, 0),
             'parameters' => [
                 'K' => $K,
                 'standard_deviation' => round($standardDeviation, 2),
@@ -181,14 +180,12 @@ class Persediaan extends Model
             return;
         }
 
-        // Gunakan logika yang sama dengan getSafetyStockStatus()
         $stockStatus = $this->getSafetyStockStatus();
         
         $notificationType = null;
         $title = '';
         $message = '';
 
-        // Generate notifikasi berdasarkan status dari getSafetyStockStatus()
         switch ($stockStatus['status']) {
             case 'critical':
                 if ($currentStock == 0) {
@@ -211,16 +208,14 @@ class Persediaan extends Model
             case 'safe':
             case 'default':
             default:
-                // Tidak perlu notifikasi untuk status safe atau default
                 return;
         }
 
-        // Generate notifikasi jika diperlukan
         if ($notificationType) {
             // Cek apakah sudah ada notifikasi serupa yang belum dibaca dalam 24 jam terakhir
             $existingNotification = Notification::where('type', $notificationType)
                 ->where('data->persediaan_id', $this->id)
-                ->where('is_read', false)
+                // ->where('is_read', false)
                 ->where('created_at', '>=', now()->subHours(24))
                 ->first();
 
@@ -243,18 +238,6 @@ class Persediaan extends Model
         }
     }
 
-    /**
-     * Get level stok untuk notifikasi berdasarkan getSafetyStockStatus
-     */
-    private function getStockLevel(): string
-    {
-        $status = $this->getSafetyStockStatus();
-        return $this->getStockLevelFromStatus($status['status']);
-    }
-
-    /**
-     * Convert status dari getSafetyStockStatus ke stock level
-     */
     private function getStockLevelFromStatus(string $status): string
     {
         return match ($status) {

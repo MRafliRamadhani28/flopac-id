@@ -52,7 +52,7 @@ class PersediaanController extends Controller
         $persediaanList = Persediaan::where(function($query) {
             $query->where('safety_stock', 0)
                   ->orWhere('updated_at', '<', now()->subDays(7));
-        })->limit(10)->get(); // Batasi 10 item per request untuk performa
+        })->limit(10)->get();
 
         foreach ($persediaanList as $persediaan) {
             $persediaan->updateSafetyStock();
