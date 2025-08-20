@@ -32,6 +32,8 @@
                             <input type="date" name="end_date" class="form-control" style="border-radius: 8px;" 
                                    value="{{ request('end_date') }}">
                         </div>
+                    </div>
+                    <div class="row mt-3">
                         <div class="col-md-3 d-flex align-items-end">
                             <div class="d-flex gap-2 w-100">
                                 <button type="submit" class="btn btn-info" style="border-radius: 8px;">

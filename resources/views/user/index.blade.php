@@ -1,24 +1,5 @@
 <x-app-layout title="Manajemen User - Flopac.id" icon='<i data-lucide="users" class="me-3"></i> Manajemen User'>
     <div class="container-fluid">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Manajemen User</h4>
-                <p class="text-muted mb-0" style="font-size: 14px;">Kelola pengguna sistem dan role mereka</p>
-            </div>
-            <div class="col-md-6 text-end">
-            </div>
-        </div>
-
-        <!-- Alert Messages -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        <!-- Search and Add Button Row -->
         <div class="row mb-3">
             <div class="col-md-6">
                 <a href="{{ route('user.roles') }}" class="btn btn-primary me-2" style="background: linear-gradient(90deg, #4AC8EA 0%, #4AC8EA 100%); border: none;">
@@ -86,6 +67,8 @@
                                                     <i data-lucide="edit" style="width: 20px; height: 20px;"></i>
                                                 </p>
                                             </a>
+                                        </div>
+                                        <div class="btn-group" aria-label="User actions">
                                             <button type="button"
                                                     class="btn btn-sm btn-danger delete-user-btn"
                                                     data-url="{{ route('user.destroy', $user->id) }}"

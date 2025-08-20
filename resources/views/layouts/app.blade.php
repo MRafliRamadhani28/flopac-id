@@ -253,9 +253,6 @@
                     <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
-                    <button type="button" class="btn w-100 nav-link text-start" onclick="confirmLogout()">
-                        <p class="d-flex"><i data-lucide="log-out" class="me-3"></i>Logout</p>
-                    </button>
                 </li>
             </ul>
         </div>

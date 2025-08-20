@@ -15,7 +15,7 @@
             </div>
         @endif
 
-        <div class="mb-3 text-end">
+        <div class="mb-3 d-flex justify-end align-items-center">
             <a href="{{ route('persediaan.exportStokMenipis') }}" target="_blank" class="btn btn-info"
                 style="border-radius: 8px;">
                 <p class="d-flex align-items-center mb-0">
@@ -23,10 +23,8 @@
                     Export PDF Stok Menipis
                 </p>
             </a>
-        </div>
 
-        <div class="mb-3 d-flex justify-end">
-            <div class="custom-search-container">
+            <div class="custom-search-container ms-3">
                 <input type="text" id="customSearch" class="custom-search-input" placeholder="Search">
                 <i data-lucide="search" class="custom-search-icon" style="width: 18px; height: 18px;"></i>
             </div>

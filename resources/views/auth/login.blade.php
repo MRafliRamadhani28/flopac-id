@@ -79,7 +79,7 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="btn btn-login">LOGIN</button>
+                    <button type="submit" class="btn btn-login mt-5">Login</button>
                 </form>
             </div>
         </div>

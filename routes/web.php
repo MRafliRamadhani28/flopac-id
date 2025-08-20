@@ -11,7 +11,6 @@ use App\Http\Controllers\PesananController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return redirect('/login');

@@ -1,21 +1,5 @@
-<x-app-layout title="Edit User - Flopac.id" icon='<i data-lucide="user-edit" class="me-3"></i> Edit User'>
+<x-app-layout title="Edit User - Flopac.id" icon='<i data-lucide="users" class="me-3"></i> Edit User'>
     <div class="container-fluid">
-        <!-- Header Section -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">Edit User</h4>
-                <p class="text-muted mb-0" style="font-size: 14px;">Edit data user: {{ $user->name }}</p>
-            </div>
-            <div class="col-md-6 text-end">
-                <a href="{{ route('user.index') }}" class="btn btn-outline-secondary">
-                    <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
-                    </p>
-                </a>
-            </div>
-        </div>
-
-        <!-- Form Card -->
         <div class="card border-0 shadow-sm form-card">
             <div class="card-body">
                 <form id="userEditForm" action="{{ route('user.update', $user->id) }}" method="POST">
