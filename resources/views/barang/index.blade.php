@@ -25,7 +25,7 @@
                     <table id="barangTable" class="table table-hover align-middle table-transparent">
                         <thead>
                             <tr>
-                                <th style="font-weight: 600; color: var(--color-foreground);">ID</th>
+                                <th style="font-weight: 600; color: var(--color-foreground);">No.</th>
                                 <th style="font-weight: 600; color: var(--color-foreground);">Nama Barang</th>
                                 <th style="font-weight: 600; color: var(--color-foreground);">Warna</th>
                                 <th style="font-weight: 600; color: var(--color-foreground);">Satuan</th>
