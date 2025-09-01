@@ -2,11 +2,12 @@
     <div class="container-fluid">
         <!-- Back Button -->
         <div class="row mb-3">
-            <div class="col-12">
+            <div class="col-6"></div>
+            <div class="col-6 text-end">
                 <a href="{{ route('pesanan.index') }}" class="btn btn-outline-secondary">
                     <p class="d-flex align-items-center mb-0">
                         <i data-lucide="arrow-left" style="width: 16px; height: 16px; margin-right: 8px;"></i>
-                        Kembali ke Daftar Pesanan
+                        Kembali
                     </p>
                 </a>
             </div>
@@ -19,7 +20,7 @@
                     <h4 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">
                         <p class="d-flex align-items-center mb-0">
                             <i data-lucide="shopping-cart" class="me-2" style="width: 24px; height: 24px;"></i>
-                            Detail Pesanan - {{ $pesanan->no_pesanan }}
+                            Detail Pesanan
                         </p>
                     </h4>
                     <span class="badge bg-{{ $pesanan->status_color }} fs-6">
@@ -88,13 +89,6 @@
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Status</label>
-                                    <div class="form-control-plaintext" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
-                                        <span class="badge bg-{{ $pesanan->status_color }} fs-6">{{ $pesanan->status }}</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
                                     <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Dibuat</label>
                                     <div class="form-control-plaintext" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
                                         {{ $pesanan->created_at->format('d/m/Y H:i') }}
@@ -109,15 +103,13 @@
                                 {{ $pesanan->alamat }}
                             </div>
                         </div>
-                        
-                        @if($pesanan->catatan)
+
                         <div class="mb-4">
                             <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Catatan</label>
                             <div class="form-control-plaintext" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
-                                {{ $pesanan->catatan }}
+                                {{ $pesanan->catatan ?: 'Tidak ada catatan' }}
                             </div>
                         </div>
-                        @endif
                     </div>
                     
                     <!-- Informasi Status & Pengguna -->
@@ -158,13 +150,6 @@
                                     </div>
                                 </div>
                                 @endif
-                                
-                                <div class="border-top pt-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="small" style="color: #6b7280;">Status Saat Ini</span>
-                                        <span class="badge bg-{{ $pesanan->status_color }}">{{ $pesanan->status }}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         

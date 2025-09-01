@@ -2,16 +2,16 @@
     <div class="container-fluid">
         <!-- Header -->
         <div class="row mb-4">
-            <div class="col-md-2">
+            <div class="col-md-10">
+                <h4 class="mb-0" style="color: var(--color-foreground);">Role & Akses Menu</h4>
+                <p class="text-muted mb-0">Daftar role dan akses menu sistem</p>
+            </div>
+            <div class="col-md-2 text-end">
                 <a href="{{ route('user.index') }}" class="btn btn-outline-secondary">
                     <p class="d-flex align-items-center mb-0">
                         <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
                     </p>
                 </a>
-            </div>
-            <div class="col-md-10">
-                <h4 class="mb-0" style="color: var(--color-foreground);">Role & Akses Menu</h4>
-                <p class="text-muted mb-0">Daftar role dan akses menu sistem</p>
             </div>
         </div>
 

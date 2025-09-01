@@ -18,14 +18,6 @@ class BarangController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('barang.create');
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -52,11 +44,11 @@ class BarangController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Get barang data for AJAX edit modal
      */
-    public function edit(Barang $barang)
+    public function editData(Barang $barang)
     {
-        return view('barang.edit', compact('barang'));
+        return response()->json($barang);
     }
 
     /**

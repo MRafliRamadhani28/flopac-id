@@ -16,8 +16,10 @@
             </div>
             <div class="col-md-6 text-end">
                 <a href="{{ route('laporan.index') }}" class="btn btn-outline-secondary" style="border-radius: 8px;">
-                    <i data-lucide="arrow-left" style="width: 16px; height: 16px; margin-right: 8px;"></i>
-                    Kembali ke Laporan
+                    <p class="d-flex align-items-center mb-0">
+                        <i data-lucide="arrow-left" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                        Kembali
+                    </p>
                 </a>
             </div>
         </div>
@@ -26,8 +28,10 @@
         <div class="card border-0 shadow-sm mb-4" style="background: var(--color-background); border-radius: 12px;">
             <div class="card-header" style="background: transparent; border-bottom: 1px solid #f1f3f4; padding: 1.5rem;">
                 <h5 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">
-                    <i data-lucide="info" class="me-2" style="width: 20px; height: 20px;"></i>
-                    Ringkasan Pemakaian
+                    <p class="d-flex align-items-center mb-0">
+                        <i data-lucide="info" class="me-2" style="width: 20px; height: 20px;"></i>
+                        Ringkasan Pemakaian
+                    </p>
                 </h5>
             </div>
             <div class="card-body" style="padding: 1.5rem;">
@@ -64,8 +68,10 @@
         <div class="card border-0 shadow-sm" style="background: var(--color-background); border-radius: 12px;">
             <div class="card-header" style="background: transparent; border-bottom: 1px solid #f1f3f4; padding: 1.5rem;">
                 <h5 class="mb-0" style="color: var(--color-foreground); font-weight: 600;">
-                    <i data-lucide="package" class="me-2" style="width: 20px; height: 20px;"></i>
-                    Detail Pesanan yang Menggunakan Stock
+                    <p class="d-flex align-items-center mb-0">
+                        <i data-lucide="package" class="me-2" style="width: 20px; height: 20px;"></i>
+                        Detail Pesanan yang Menggunakan Stock
+                    </p>
                 </h5>
             </div>
             <div class="card-body" style="padding: 1.5rem;">

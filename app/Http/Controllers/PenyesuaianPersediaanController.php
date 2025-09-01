@@ -144,7 +144,13 @@ class PenyesuaianPersediaanController extends Controller
         $penyesuaianPersediaan = PenyesuaianPersediaan::with('details.barang')->findOrFail($id);
         $barangs = Barang::with('persediaan')->get();
 
-        return view('penyesuaian_persediaan.edit', compact('penyesuaianPersediaan', 'barangs'));
+        return view('penyesuaian_persediaan.show', compact('penyesuaianPersediaan'));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Request $request, string $id)
     }
 
     /**

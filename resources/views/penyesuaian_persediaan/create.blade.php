@@ -1,17 +1,5 @@
-<x-app-layout title="Tambah Penyesuaian Persediaan - Flopac.id" icon='<i data-lucide="file-pen" class="me-3"></i> Tambah Penyesuaian Persediaan'>
+<x-app-layout title="Tambah Penyesuaian Persediaan - Flopac.id" icon='<i data-lucide="file-plus-2" class="me-3"></i> Tambah Penyesuaian Persediaan'>
     <div class="container-fluid">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-md-6"></div>
-            <div class="col-md-6 text-end">
-                <a href="{{ route('penyesuaian_persediaan.index') }}" class="btn btn-outline-secondary">
-                    <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="arrow-left" style="margin-right: 8px; width: 20px; height: 20px;"></i> Kembali
-                    </p>
-                </a>
-            </div>
-        </div>
-
         <!-- Form Card -->
         <div class="card border-0 shadow-sm form-card">
             <div class="card-body">

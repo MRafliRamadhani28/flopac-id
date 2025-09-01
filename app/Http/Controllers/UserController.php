@@ -15,18 +15,8 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->get();
-        return view('user.index', compact('users'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
         $roles = Role::all();
-        // Check if Owner role already exists
-        $ownerExists = User::role('Owner')->exists();
-        return view('user.create', compact('roles', 'ownerExists'));
+        return view('user.index', compact('users', 'roles'));
     }
 
     /**
@@ -64,15 +54,18 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Get user data for AJAX edit modal
      */
-    public function edit(User $user)
+    public function editData(User $user)
     {
-        $roles = Role::all();
         $user->load('roles');
-        // Check if Owner role already exists and if current user is not the owner
-        $ownerExists = User::role('Owner')->where('id', '!=', $user->id)->exists();
-        return view('user.edit', compact('user', 'roles', 'ownerExists'));
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'username' => $user->username,
+            'email' => $user->email,
+            'role' => $user->roles->first()?->name ?? ''
+        ]);
     }
 
     /**
