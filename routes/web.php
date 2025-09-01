@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('barang', BarangController::class)->except(['show']);
         Route::resource('barang_masuk', BarangMasukController::class)->except(['edit', 'update']);
         Route::resource('penyesuaian_persediaan', PenyesuaianPersediaanController::class)->except(['edit', 'update']);
+        Route::get('laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.exportPdf');
+        Route::resource('laporan', LaporanController::class);
     });
 
     // User routes - Owner only
@@ -36,8 +38,6 @@ Route::middleware('auth')->group(function () {
         Route::get('user/{user}/edit-data', [UserController::class, 'editData'])->name('user.edit_data');
         Route::resource('user', UserController::class)->except(['show']);
         Route::get('user-roles', [UserController::class, 'roles'])->name('user.roles');
-        Route::get('laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.exportPdf');
-        Route::resource('laporan', LaporanController::class);
     });
 
         // Persediaan routes - Owner, Persediaan, Produksi
