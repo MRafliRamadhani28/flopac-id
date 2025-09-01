@@ -148,12 +148,6 @@ class PenyesuaianPersediaanController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Request $request, string $id)
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
@@ -253,9 +247,6 @@ class PenyesuaianPersediaanController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, string $id)
     {
         DB::beginTransaction();

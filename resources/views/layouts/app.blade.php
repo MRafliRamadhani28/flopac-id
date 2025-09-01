@@ -234,13 +234,15 @@
                         </li>
                     @endif
 
-                    @if(Auth::user()->hasRole('Owner'))
+                    @if(Auth::user()->hasRole('Owner') || Auth::user()->hasRole('Persediaan'))
                         <li class="nav-item my-0.5">
                             <a href="{{ route('laporan.index') }}" class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
                                 <p class="d-flex"><i data-lucide="file-chart-column" class="me-3"></i>Laporan</p>
                             </a>
                         </li>
+                    @endif
 
+                    @if (Auth::user()->hasRole('Owner'))
                         <li class="nav-item my-0.5">
                             <a href="{{ route('user.index') }}" class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
                                 <p class="d-flex"><i data-lucide="users" class="me-3"></i>User</p>

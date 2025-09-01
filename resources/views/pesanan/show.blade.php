@@ -61,13 +61,6 @@
                                         {{ $pesanan->model }}
                                     </div>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Sumber</label>
-                                    <div class="form-control-plaintext" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
-                                        {{ $pesanan->sumber }}
-                                    </div>
-                                </div>
                             </div>
                             
                             <div class="col-md-6">
@@ -87,11 +80,11 @@
                                         @endif
                                     </div>
                                 </div>
-                                
+
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Dibuat</label>
+                                    <label class="form-label" style="color: var(--color-foreground); font-weight: 500;">Sumber</label>
                                     <div class="form-control-plaintext" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
-                                        {{ $pesanan->created_at->format('d/m/Y H:i') }}
+                                        {{ $pesanan->sumber }}
                                     </div>
                                 </div>
                             </div>
