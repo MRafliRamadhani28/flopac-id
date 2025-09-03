@@ -497,6 +497,9 @@
     @push('scripts')
     <script>
     $(document).ready(function() {
+        // Global variable to store all input values during stock management session
+        let globalStockInputValues = {};
+
         setTimeout(function() {
             if ($('#pesananTable').length) {
                 if ($.fn.DataTable.isDataTable('#pesananTable')) {
@@ -647,25 +650,66 @@
             }
         });
 
-        // Stock search functionality
+        // Global event listener for all stock inputs (including dynamically created ones)
+        $(document).on('input', '.stock-input', function() {
+            const itemId = $(this).attr('id').replace('stock_', '');
+            const value = $(this).val();
+            const availableStock = parseInt($(this).data('available'));
+            const inputValue = parseInt(value || '0');
+            const sisaStok = availableStock - inputValue;
+            
+            // Always update global storage when any stock input changes
+            globalStockInputValues[itemId] = value;
+            
+            // Update sisa stok display
+            $(`#sisa_${itemId}`).text(sisaStok);
+            $(`#sisa_${itemId}`).removeClass('bg-info bg-warning bg-danger');
+            
+            if (sisaStok < 0) {
+                $(`#sisa_${itemId}`).addClass('bg-danger');
+            } else if (sisaStok === 0) {
+                $(`#sisa_${itemId}`).addClass('bg-warning');
+            } else {
+                $(`#sisa_${itemId}`).addClass('bg-info');
+            }
+            
+            // Validate input
+            if (inputValue > availableStock) {
+                $(this).addClass('is-invalid');
+                $(this).siblings('.invalid-feedback').text(`Maksimal ${availableStock}`);
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').text('');
+            }
+        });
+
+        // Stock search functionality - preserves ALL user input values when searching
         $('#stockSearch').on('input', function() {
             const searchTerm = $(this).val().trim();
             if (searchTerm === '') {
-                // If search is empty, show all items
+                // If search is empty, show all items with preserved values
                 const originalData = $('#stockManagementModal').data('originalStockData');
                 if (originalData) {
                     populateStockTable(originalData);
                 }
             } else {
-                // Filter table based on search term
+                // Filter table based on search term while preserving all input values
                 filterStockTable(searchTerm);
             }
         });
 
-        // Clear search when modal is hidden
+        // Clear search when modal is hidden and reset global values
         $('#stockManagementModal').on('hidden.bs.modal', function() {
             $('#stockSearch').val('');
             $('#stockSearchResults').text('');
+            // Reset global storage when modal is closed
+            globalStockInputValues = {};
+        });
+
+        // Initialize global storage when modal is shown
+        $('#stockManagementModal').on('shown.bs.modal', function() {
+            // Reset global storage for new session
+            globalStockInputValues = {};
         });
 
         // Production usage modal handler
@@ -1029,6 +1073,15 @@
         }
 
         function populateStockTable(stockData) {
+            // Update global values with current inputs before regenerating
+            $('.stock-input').each(function() {
+                const itemId = $(this).attr('id').replace('stock_', '');
+                const value = $(this).val();
+                if (value !== undefined && value !== null) {
+                    globalStockInputValues[itemId] = value;
+                }
+            });
+
             let tableHtml = '';
             
             if (stockData.length === 0) {
@@ -1043,6 +1096,10 @@
             } else {
                 stockData.forEach(function(item, index) {
                     const stokTersedia = item.stok_tersedia;
+                    // Get value from global storage
+                    const existingValue = globalStockInputValues[item.id] || '';
+                    const usedValue = existingValue && existingValue !== '' ? parseInt(existingValue) : 0;
+                    const sisaStok = stokTersedia - usedValue;
                     
                     tableHtml += `
                         <tr>
@@ -1074,13 +1131,15 @@
                                        max="${stokTersedia}" 
                                        data-available="${stokTersedia}"
                                        data-index="${index}"
+                                       data-item-id="${item.id}"
                                        placeholder="0"
+                                       value="${existingValue}"
                                        style="width: 120px;">
                                 <div class="invalid-feedback"></div>
                             </td>
                             <td style="padding: 1rem;">
-                                <span class="badge bg-info sisa-stok" id="sisa_${item.id}" style="font-size: 14px;">
-                                    ${stokTersedia}
+                                <span class="badge ${sisaStok < 0 ? 'bg-danger' : (sisaStok === 0 ? 'bg-warning' : 'bg-info')} sisa-stok" id="sisa_${item.id}" style="font-size: 14px;">
+                                    ${sisaStok}
                                 </span>
                             </td>
                         </tr>
@@ -1095,36 +1154,6 @@
             
             // Update search results count
             updateStockSearchResults(stockData.length, stockData.length);
-            
-            // Add event listeners for stock input changes
-            $('.stock-input').on('input', function() {
-                const availableStock = parseInt($(this).data('available'));
-                // Handle empty value: convert to 0 for calculation
-                const inputValue = parseInt($(this).val() || '0');
-                const itemId = $(this).attr('id').replace('stock_', '');
-                const sisaStok = availableStock - inputValue;
-                
-                // Update sisa stok display
-                $(`#sisa_${itemId}`).text(sisaStok);
-                $(`#sisa_${itemId}`).removeClass('bg-info bg-warning bg-danger');
-                
-                if (sisaStok < 0) {
-                    $(`#sisa_${itemId}`).addClass('bg-danger');
-                } else if (sisaStok === 0) {
-                    $(`#sisa_${itemId}`).addClass('bg-warning');
-                } else {
-                    $(`#sisa_${itemId}`).addClass('bg-info');
-                }
-                
-                // Validate input
-                if (inputValue > availableStock) {
-                    $(this).addClass('is-invalid');
-                    $(this).siblings('.invalid-feedback').text(`Maksimal ${availableStock}`);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $(this).siblings('.invalid-feedback').text('');
-                }
-            });
             
             // Initialize Lucide icons for new content
             if (typeof lucide !== 'undefined') {
@@ -1141,6 +1170,15 @@
             const originalData = $('#stockManagementModal').data('originalStockData');
             if (!originalData) return;
 
+            // Update global values with current inputs before filtering
+            $('.stock-input').each(function() {
+                const itemId = $(this).attr('id').replace('stock_', '');
+                const value = $(this).val();
+                if (value !== undefined && value !== null) {
+                    globalStockInputValues[itemId] = value;
+                }
+            });
+
             const filteredData = originalData.filter(item => {
                 const namaBarang = item.nama_barang.toLowerCase();
                 const warna = item.warna.toLowerCase();
@@ -1156,9 +1194,9 @@
                 tableHtml = `
                     <tr>
                         <td colspan="6" class="text-center py-4 text-muted">
-                            <p class="d-flex align-items-center mb-0">
-                                <i data-lucide="search-x" style="width: 24px; height: 24px;"></i>
-                                <div class="mt-2">Tidak ada barang yang cocok dengan pencarian "${searchTerm}"</div>
+                            <p class="d-flex align-items-center justify-content-center mb-0">
+                                <i data-lucide="search-x" style="width: 24px; height: 24px; margin-right: 8px;"></i>
+                                <span>Tidak ada barang yang cocok dengan pencarian "${searchTerm}"</span>
                             </p>
                         </td>
                     </tr>
@@ -1166,6 +1204,10 @@
             } else {
                 filteredData.forEach(function(item, index) {
                     const stokTersedia = item.stok_tersedia;
+                    // Get value from global storage
+                    const existingValue = globalStockInputValues[item.id] || '';
+                    const usedValue = existingValue && existingValue !== '' ? parseInt(existingValue) : 0;
+                    const sisaStok = stokTersedia - usedValue;
                     
                     tableHtml += `
                         <tr>
@@ -1197,13 +1239,15 @@
                                        max="${stokTersedia}" 
                                        data-available="${stokTersedia}"
                                        data-index="${index}"
+                                       data-item-id="${item.id}"
                                        placeholder="0"
+                                       value="${existingValue}"
                                        style="width: 120px;">
                                 <div class="invalid-feedback"></div>
                             </td>
                             <td style="padding: 1rem;">
-                                <span class="badge bg-info sisa-stok" id="sisa_${item.id}" style="font-size: 14px;">
-                                    ${stokTersedia}
+                                <span class="badge ${sisaStok < 0 ? 'bg-danger' : (sisaStok === 0 ? 'bg-warning' : 'bg-info')} sisa-stok" id="sisa_${item.id}" style="font-size: 14px;">
+                                    ${sisaStok}
                                 </span>
                             </td>
                         </tr>
@@ -1215,33 +1259,6 @@
             
             // Update search results count
             updateStockSearchResults(filteredData.length, originalData.length);
-            
-            // Re-bind event listeners for the new inputs
-            $('.stock-input').on('input', function() {
-                const availableStock = parseInt($(this).data('available'));
-                const inputValue = parseInt($(this).val() || '0');
-                const itemId = $(this).attr('id').replace('stock_', '');
-                const sisaStok = availableStock - inputValue;
-                
-                $(`#sisa_${itemId}`).text(sisaStok);
-                $(`#sisa_${itemId}`).removeClass('bg-info bg-warning bg-danger');
-                
-                if (sisaStok < 0) {
-                    $(`#sisa_${itemId}`).addClass('bg-danger');
-                } else if (sisaStok === 0) {
-                    $(`#sisa_${itemId}`).addClass('bg-warning');
-                } else {
-                    $(`#sisa_${itemId}`).addClass('bg-info');
-                }
-                
-                if (inputValue > availableStock) {
-                    $(this).addClass('is-invalid');
-                    $(this).siblings('.invalid-feedback').text(`Maksimal ${availableStock}`);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $(this).siblings('.invalid-feedback').text('');
-                }
-            });
             
             // Initialize Lucide icons for new content
             if (typeof lucide !== 'undefined') {
