@@ -85,7 +85,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($groupedData as $index => $item)
+                            @foreach($groupedData as $index => $item)
                                 <tr class="clickable-row" data-href="{{ route('laporan.show', $item->tanggal->format('Y-m-d') . '_' . $item->barang->id) }}" style="cursor: pointer;">
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $item->tanggal->format('d/m/Y') }}</td>
@@ -101,7 +101,7 @@
                                         <span class="badge bg-info">{{ $item->total_orders }}</span>
                                     </td>
                                 </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
