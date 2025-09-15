@@ -120,13 +120,4 @@ class UserController extends Controller
         return redirect()->route('user.index')
             ->with('success', 'User berhasil dihapus.');
     }
-
-    /**
-     * Display all roles
-     */
-    public function roles()
-    {
-        $roles = Role::all();
-        return view('user.roles', compact('roles'));
-    }
 }

@@ -5,11 +5,6 @@
     <div class="container-fluid">
         <div class="row mb-3">
             <div class="col-md-6">
-                <a href="{{ route('user.roles') }}" class="btn btn-primary me-2" style="background: linear-gradient(90deg, #4AC8EA 0%, #4AC8EA 100%); border: none;">
-                    <p class="d-flex align-items-center mb-0">
-                        <i data-lucide="shield" style="margin-right: 8px; width: 20px; height: 20px;"></i> Lihat Role
-                    </p>
-                </a>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal" style="background: linear-gradient(90deg, #4AC8EA 0%, #4AC8EA 100%); border: none;">
                     <p class="d-flex align-items-center mb-0">
                         <i data-lucide="plus" style="margin-right: 8px; width: 20px; height: 20px;"></i> Tambah User

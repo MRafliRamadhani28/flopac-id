@@ -101,13 +101,6 @@
                                         <span class="badge bg-info">{{ $item->total_orders }}</span>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">
-                                        <i data-lucide="file-x" style="width: 48px; height: 48px; color: #6b7280; margin-bottom: 1rem;"></i>
-                                        <div style="color: #6b7280;">Tidak ada data laporan</div>
-                                    </td>
-                                </tr>
                             @endforelse
                         </tbody>
                     </table>

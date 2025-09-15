@@ -37,7 +37,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:Owner')->group(function () {
         Route::get('user/{user}/edit-data', [UserController::class, 'editData'])->name('user.edit_data');
         Route::resource('user', UserController::class)->except(['show']);
-        Route::get('user-roles', [UserController::class, 'roles'])->name('user.roles');
     });
 
         // Persediaan routes - Owner, Persediaan, Produksi
